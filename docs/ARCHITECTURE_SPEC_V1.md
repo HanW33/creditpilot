@@ -357,7 +357,11 @@ Examples of approved verification capabilities may include:
 - verify_employment();
 - get_credit_report().
 
-The Verification Agent must not invent missing evidence.
+Approved verification tools obtain and return raw verification evidence.
+
+The Verification Agent may interpret and structure that evidence and propose
+evidence or state updates. It must not fabricate verified facts or directly
+bypass protected state controls.
 
 Reported applicant information must not be overwritten by verified evidence.
 Both must remain separately traceable.
@@ -442,7 +446,11 @@ Examples:
 
 - quantitative model components own PD and model outputs;
 - Policy Agent owns policy findings;
-- Verification Agent and approved verification tools own verification evidence;
+- approved verification tools obtain and return raw verification evidence;
+- Verification Agent interprets and structures verification evidence and proposes
+  verification-state updates;
+- deterministic workflow and state controls validate and commit protected
+  verification-state updates to CreditState;
 - Orchestrator Agent owns proposed next workflow action;
 - Decision Engine exclusively owns recommendation fields;
 - Explanation Agent owns analyst-facing explanation;
@@ -489,11 +497,12 @@ to determine which evidence is applicable.
 
 ### 6.7 Core Control Principle
 
-Agents propose actions.
+Agents propose actions and state updates.
 
-Authorized tools perform bounded capabilities.
+Authorized tools perform bounded capabilities and return raw results.
 
-Component owners write their protected state.
+Deterministic workflow and state controls validate and commit protected
+state updates to CreditState.
 
 The Workflow Controller enforces valid transitions.
 
