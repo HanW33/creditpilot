@@ -723,3 +723,446 @@ The Workflow Controller enforces valid escalation transitions.
 The human analyst performs the human review.
 
 Mandatory human review cannot be bypassed by an agent.
+
+## 9. End-to-End Workflow
+
+The canonical CreditPilot V1 workflow is:
+
+1. Receive a synthetic credit application.
+2. Classify and separate identity PII.
+3. Tokenize identity and store protected identity mappings separately.
+4. Validate the application using deterministic validation logic.
+5. Compute deterministic features.
+6. Run the quantitative credit-risk model.
+7. Generate quantitative model explanation using SHAP.
+8. Retrieve and interpret applicable synthetic policy.
+9. Identify required evidence and policy constraints.
+10. Let the Orchestrator evaluate the current case state.
+11. If evidence is missing, route through deterministic workflow controls
+    to the Verification Agent.
+12. Execute approved verification tools.
+13. Store verified evidence separately from reported applicant information.
+14. Recalculate affected deterministic features where required.
+15. Rerun the quantitative model when relevant inputs materially change.
+16. Rerun policy evaluation when relevant evidence changes.
+17. Continue the investigation loop within configured limits.
+18. Pass eligible case evidence to the deterministic Decision Engine.
+19. Produce a structured recommendation.
+20. Route mandatory-review cases to human review.
+21. Generate an analyst-facing explanation.
+22. Preserve model, policy, workflow, tool, escalation, and audit evidence.
+
+The workflow must support bounded loops.
+
+It must not allow uncontrolled recursive agent execution.
+
+
+## 10. Tool and Permission Architecture
+
+Tools are typed capabilities with explicit permissions and side-effect boundaries.
+
+Agents must not receive unrestricted access to application code,
+databases, identity stores, external systems, or arbitrary APIs.
+
+### 10.1 Tool Categories
+
+Conceptual V1 tool categories include:
+
+Data tools:
+
+- get_application();
+- get_customer_profile();
+
+Model tools:
+
+- calculate_dti();
+- run_credit_risk_model();
+- explain_model();
+
+Policy tools:
+
+- search_credit_policy();
+
+Verification tools:
+
+- verify_income();
+- verify_employment();
+- get_credit_report();
+
+Action tools:
+
+- create_review_case();
+- send_notification();
+
+### 10.2 Tool Permissions
+
+Each agent must receive only the minimum tools required for its role.
+
+Example:
+
+Policy Agent:
+- search_credit_policy();
+
+Verification Agent:
+- verify_income();
+- verify_employment();
+- get_credit_report();
+
+Explanation Agent:
+- read-only access to approved state;
+- no external side-effect tools.
+
+Escalation Agent:
+- create_review_case();
+- send_notification();
+
+### 10.3 Side-Effect Controls
+
+External side-effect tools require:
+
+- explicit preconditions;
+- permission checks;
+- audit logging;
+- sanitized inputs;
+- idempotency controls where appropriate;
+- deterministic workflow approval.
+
+Agents must not directly execute arbitrary external actions.
+
+
+## 11. Policy Retrieval and RAG Architecture
+
+CreditPilot uses synthetic credit-policy documents for demonstration.
+
+Policy retrieval must be evidence-based and traceable.
+
+### 11.1 Retrieval Flow
+
+The conceptual policy retrieval flow is:
+
+Synthetic Policy Documents
+→ Chunking
+→ Embeddings
+→ Vector Store
+→ Retrieval
+→ Policy Agent
+→ Structured Policy Finding
+
+### 11.2 Retrieval Requirements
+
+Policy retrieval should preserve:
+
+- source document;
+- section or chunk reference;
+- policy version;
+- retrieval score where available;
+- effective date where applicable.
+
+### 11.3 Policy Agent Constraints
+
+The Policy Agent must:
+
+- distinguish retrieved policy from its interpretation;
+- preserve policy citations;
+- identify missing or conflicting policy evidence;
+- avoid inventing policy;
+- avoid inventing thresholds;
+- avoid presenting synthetic policy as real bank policy.
+
+Policy retrieval failure must not silently become policy approval.
+
+
+## 12. Failure Handling and Safe Routing
+
+Failure handling is part of the architecture.
+
+Failures must not be silently ignored.
+
+### 12.1 Model Failure
+
+If the quantitative model fails:
+
+- set explicit model failure state;
+- do not invent PD;
+- do not invent SHAP output;
+- route to safe review or escalation.
+
+### 12.2 Policy Retrieval Failure
+
+If policy retrieval fails:
+
+- record the retrieval failure;
+- do not fabricate policy;
+- retry only within configured limits;
+- route unresolved cases to human review.
+
+### 12.3 Verification Failure
+
+If verification fails:
+
+- preserve the failure result;
+- preserve reported data separately;
+- do not fabricate verified evidence;
+- retry only within configured limits;
+- route unresolved cases appropriately.
+
+### 12.4 Tool Failure
+
+Tool failures must be captured in structured state.
+
+The system must support:
+
+- bounded retry;
+- explicit failure status;
+- audit logging;
+- safe fallback routing.
+
+### 12.5 Agent Failure
+
+If an agent returns invalid structured output:
+
+- reject invalid output;
+- retry only within configured limits;
+- preserve the error;
+- route to safe fallback or human review.
+
+### 12.6 Loop Protection
+
+CreditPilot must enforce:
+
+- maximum investigation iterations;
+- maximum tool calls;
+- maximum retry count;
+- timeout handling.
+
+When limits are reached, the workflow must stop safely
+and route according to configured rules.
+
+
+## 13. Auditability and Observability
+
+Every material decision-support step must be traceable.
+
+The system should preserve:
+
+- application or case reference;
+- model version;
+- model timestamp;
+- PD and approved model outputs;
+- SHAP explanation;
+- retrieved policy evidence;
+- policy version;
+- agent outputs;
+- tool calls;
+- tool outcomes;
+- workflow transitions;
+- verification evidence;
+- Decision Engine rule;
+- recommendation;
+- escalation reason;
+- human-review outcome where captured;
+- relevant timestamps.
+
+PII-access auditing must remain separately identifiable from ordinary
+workflow auditing.
+
+Logs and traces must avoid unnecessary raw PII.
+
+
+## 14. Security and Governance
+
+CreditPilot V1 follows least-privilege and least-context principles.
+
+Security controls include:
+
+- synthetic/demo data only;
+- deterministic PII classification;
+- identity tokenization;
+- PII Vault separation;
+- LLM context sanitization;
+- allowlist-based prompt context;
+- role-based tool permissions;
+- protected CreditState ownership;
+- controlled external actions;
+- immutable or append-only audit concepts;
+- bounded retries and loops;
+- mandatory human review;
+- versioned model and policy artefacts.
+
+No agent receives unrestricted access to raw PII.
+
+No agent receives unrestricted authority over workflow state.
+
+No LLM-enabled agent may override protected quantitative outputs
+or deterministic recommendation logic.
+
+
+## 15. V1 Scope and Non-Goals
+
+CreditPilot V1 is designed as a portfolio and learning system.
+
+It is not:
+
+- a production lending platform;
+- an autonomous approval engine;
+- a real bank underwriting system;
+- a substitute for legal or regulatory advice;
+- a system using real customer PII;
+- a system using proprietary bank underwriting policies.
+
+V1 prioritizes architectural clarity, explainability, governance,
+evaluation, and reproducibility over production scale.
+
+
+## 16. Golden Demo Scenarios
+
+CreditPilot V1 must support at least three demonstrable scenarios.
+
+### 16.1 Straightforward Low-Risk Case
+
+Expected path:
+
+Application
+→ Validation
+→ Model
+→ Policy
+→ Decision Engine
+→ Explanation
+
+The case should demonstrate a short path with no unnecessary investigation.
+
+### 16.2 Verification Changes the Risk Assessment
+
+Example conceptual path:
+
+Application reports income = 150000
+→ Model
+→ Policy requires verified income
+→ Orchestrator identifies missing evidence
+→ Verification Agent
+→ verified_income = 98000
+→ deterministic feature recalculation
+→ model rerun
+→ policy rerun
+→ Decision Engine
+→ MANUAL_REVIEW
+→ Explanation / Escalation
+
+This scenario demonstrates adaptive investigation and evidence-driven rerouting.
+
+### 16.3 Policy or Evidence Conflict
+
+Expected path:
+
+Application
+→ Model
+→ Policy retrieval
+→ conflicting or unresolved evidence
+→ bounded investigation
+→ unresolved conflict
+→ Decision Engine / workflow rule
+→ MANUAL_REVIEW
+→ Escalation Agent
+→ Human Review
+
+This scenario demonstrates safe handling of uncertainty.
+
+
+## 17. Architecture Invariants
+
+The following rules must remain true throughout V1 implementation:
+
+1. CreditPilot is decision support, not autonomous lending.
+2. Raw identity PII is separated from the main AI workflow.
+3. LLMs receive minimum necessary sanitized context.
+4. Validation and deterministic calculations remain deterministic.
+5. PD is produced only by the quantitative model.
+6. SHAP is produced only from the quantitative model.
+7. Agents cannot modify protected quantitative outputs.
+8. Reported and verified evidence remain separately traceable.
+9. Policy findings must be grounded in retrieved synthetic policy.
+10. Agents cannot invent policy or thresholds.
+11. The Orchestrator proposes workflow actions but does not enforce transitions.
+12. The Workflow Controller enforces valid transitions.
+13. Tools are typed and permission controlled.
+14. External side effects are audited and controlled.
+15. Recommendation fields are written only by the Decision Engine.
+16. Mandatory human review cannot be bypassed.
+17. Investigation loops and retries are bounded.
+18. Failures are explicit and safely routed.
+19. Model, policy, workflow, and decision versions remain traceable.
+20. Material architecture changes require explicit human approval.
+
+
+## 18. Open Questions
+
+The following questions remain open for later design approval:
+
+### OQ-1 — Sensitive Credit Attributes
+
+Which credit attributes should be classified as PII,
+sensitive personal information, or ordinary credit-risk features?
+
+Examples requiring explicit classification include:
+
+- income;
+- employment information;
+- credit bureau information;
+- verified financial evidence.
+
+### OQ-2 — CreditState Physical Schema
+
+What exact fields and nested structures will implement the conceptual
+CreditState domains?
+
+This will be resolved during State Design.
+
+### OQ-3 — Synthetic Decision Thresholds
+
+What synthetic PD and workflow thresholds should be used for the demo?
+
+These must be configurable and clearly identified as synthetic.
+
+### OQ-4 — Verification Providers
+
+Which verification tools will be mocked in V1 and which, if any,
+will use public or sandbox APIs?
+
+### OQ-5 — Human Review Interface
+
+How will the V1 human analyst review and record an outcome?
+
+### OQ-6 — Model Choice
+
+The baseline should remain interpretable.
+
+The exact baseline model and any challenger model will be selected
+during Phase 1.
+
+
+## 19. Phase 0 Architecture Exit Criteria
+
+The architecture specification is ready to freeze when:
+
+- project purpose and non-goals are explicit;
+- deterministic, ML, agent, and human responsibilities are separated;
+- the five approved agents are defined;
+- verification responsibility is unambiguous;
+- CreditState ownership principles are defined;
+- PII and LLM security boundaries are defined;
+- Workflow Controller authority is defined;
+- Decision Engine authority is defined;
+- tool permissions and side effects are bounded;
+- policy retrieval is traceable;
+- failure handling is explicit;
+- human-review controls are explicit;
+- audit requirements are defined;
+- golden demo scenarios are defined;
+- architecture invariants are documented;
+- remaining unresolved design questions are explicitly listed.
+
+After the architecture consistency review is completed and approved,
+this document becomes the frozen V1 architecture source of truth.
+
+Implementation must not begin before Phase 0 documentation and review
+requirements are complete.
