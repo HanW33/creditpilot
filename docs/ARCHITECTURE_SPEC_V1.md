@@ -500,3 +500,104 @@ Human analysts retain authority where human review is required.
 and tool invocation are permitted.
 
 No single agent owns the entire verification decision chain.
+
+## 7. Deterministic Decision Engine
+
+The Decision Engine is a deterministic, non-agent component.
+
+It produces a structured decision-support recommendation using approved
+model signals, policy findings, verification evidence, data-quality state,
+and explicit decision rules.
+
+The Decision Engine must not use unrestricted LLM reasoning to determine
+the final recommendation.
+
+### 7.1 Decision Inputs
+
+Conceptual inputs may include:
+
+- Probability of Default (PD);
+- risk band;
+- quantitative risk factors;
+- policy findings;
+- policy conflicts;
+- required evidence status;
+- verification results;
+- validation and data-quality status;
+- mandatory human-review conditions;
+- explicit synthetic decision rules.
+
+### 7.2 Decision Outputs
+
+The Decision Engine exclusively writes:
+
+- recommendation;
+- decision_rule;
+- decision_reason.
+
+Possible V1 decision-support recommendations include:
+
+- APPROVAL_RECOMMENDATION;
+- MANUAL_REVIEW;
+- REQUEST_MORE_INFORMATION;
+- HIGH_RISK_REVIEW.
+
+These are synthetic portfolio workflow states.
+
+They do not represent autonomous real-world lending decisions.
+
+### 7.3 Decision Authority
+
+The quantitative model predicts credit risk.
+
+The Policy Agent interprets applicable synthetic policy.
+
+The Verification Agent gathers approved evidence.
+
+The Orchestrator coordinates investigation.
+
+The Decision Engine applies explicit deterministic recommendation logic.
+
+No LLM-enabled agent may directly produce or modify the protected
+recommendation fields.
+
+### 7.4 Mandatory Review Overrides
+
+Mandatory human-review conditions take precedence over an otherwise
+eligible automated recommendation.
+
+Examples may include:
+
+- unresolved policy conflict;
+- critical missing evidence;
+- verification failure;
+- model failure;
+- unresolved ambiguity;
+- investigation limits exhausted;
+- configured high-risk workflow conditions;
+- explicit mandatory-review rules.
+
+The system must not allow an agent to bypass these conditions.
+
+### 7.5 Synthetic Thresholds
+
+Any risk thresholds used in CreditPilot must be clearly identified as
+synthetic demonstration thresholds.
+
+No threshold may be represented as a real bank underwriting rule.
+
+Thresholds must be configurable rather than silently embedded in
+LLM prompts.
+
+### 7.6 Core Decision Principle
+
+Credit risk prediction and credit recommendation are separate responsibilities.
+
+The ML model predicts risk.
+
+The Decision Engine applies controlled recommendation logic.
+
+Agents provide reasoning, investigation, policy interpretation,
+verification, explanation, and escalation support.
+
+Human analysts retain final authority wherever human review is required.
