@@ -373,6 +373,130 @@ Orchestrator Agent → WHETHER the current workflow requires verification.
 Verification Agent → HOW the required evidence is obtained.
 
 Deterministic workflow controls enforce whether the requested transition
+
+## 6. Workflow Controller and CreditState
+
+CreditPilot uses a shared CreditState to represent the current state of a credit case.
+
+The CreditState is protected by deterministic workflow controls.
+
+Agents may reason about the current state and propose permitted updates,
+but they must not have unrestricted authority to mutate protected state.
+
+### 6.1 Workflow Controller
+
+The Workflow Controller is a deterministic, non-agent component.
+
+It is responsible for:
+
+- enforcing valid state transitions;
+- validating requested workflow actions;
+- enforcing agent and tool permissions;
+- enforcing retry limits;
+- enforcing investigation loop limits;
+- enforcing mandatory human-review conditions;
+- preventing unauthorized state mutation;
+- coordinating auditable state transitions.
+
+The Workflow Controller does not perform credit-risk reasoning and does not
+replace the Orchestrator Agent.
+
+The Orchestrator determines what should happen next.
+
+The Workflow Controller determines whether that transition is permitted.
+
+### 6.2 CreditState Domains
+
+The conceptual CreditState contains the following domains:
+
+- identity references;
+- application data;
+- validation state;
+- quantitative model state;
+- policy state;
+- verification state;
+- workflow state;
+- recommendation state;
+- explanation state;
+- escalation state;
+- governance and audit references.
+
+Raw identity PII must not be stored directly in the main CreditState.
+
+Identity must normally be represented using controlled references such as:
+
+- application_id;
+- customer_token.
+
+### 6.3 State Ownership Principle
+
+Every protected state field must have an explicit owner.
+
+Agents and components may read fields when authorized,
+but only the designated owner may write protected fields.
+
+Examples:
+
+- quantitative model components own PD and model outputs;
+- Policy Agent owns policy findings;
+- Verification Agent and approved verification tools own verification evidence;
+- Orchestrator Agent owns proposed next workflow action;
+- Decision Engine exclusively owns recommendation fields;
+- Explanation Agent owns analyst-facing explanation;
+- Escalation Agent and controlled action tools own escalation fields;
+- Workflow Controller owns protected workflow transitions and counters.
+
+### 6.4 Quantitative State Protection
+
+LLM-enabled agents may read authorized quantitative model outputs but must not
+directly write or modify:
+
+- pd_score;
+- risk_band;
+- SHAP risk factors;
+- model_version;
+- model_timestamp.
+
+Only approved quantitative components may write these fields.
+
+### 6.5 Recommendation State Protection
+
+The deterministic Decision Engine exclusively writes:
+
+- recommendation;
+- decision_rule;
+- decision_reason.
+
+No LLM-enabled agent may directly modify these fields.
+
+### 6.6 Reported and Verified Data Separation
+
+Reported applicant data must remain separate from externally verified evidence.
+
+For example:
+
+reported_income = 150000
+
+verified_income = 98000
+
+Verification must not overwrite the original reported value.
+
+Any downstream recalculation must use explicitly defined feature logic
+to determine which evidence is applicable.
+
+### 6.7 Core Control Principle
+
+Agents propose actions.
+
+Authorized tools perform bounded capabilities.
+
+Component owners write their protected state.
+
+The Workflow Controller enforces valid transitions.
+
+The Decision Engine owns deterministic recommendation logic.
+
+Human analysts retain authority where human review is required.
 and tool invocation are permitted.
 
 No single agent owns the entire verification decision chain.
