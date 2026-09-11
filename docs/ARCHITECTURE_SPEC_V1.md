@@ -373,6 +373,9 @@ Orchestrator Agent → WHETHER the current workflow requires verification.
 Verification Agent → HOW the required evidence is obtained.
 
 Deterministic workflow controls enforce whether the requested transition
+and tool invocation are permitted.
+
+No single agent owns the entire verification decision chain.
 
 ## 6. Workflow Controller and CreditState
 
@@ -497,9 +500,6 @@ The Workflow Controller enforces valid transitions.
 The Decision Engine owns deterministic recommendation logic.
 
 Human analysts retain authority where human review is required.
-and tool invocation are permitted.
-
-No single agent owns the entire verification decision chain.
 
 ## 7. Deterministic Decision Engine
 
