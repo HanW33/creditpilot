@@ -232,3 +232,85 @@ tool selection, evidence gathering, or workflow adaptation is required.
 
 Use human review where final authority or unresolved risk requires
 human judgment.
+
+## 4. Approved Agent Architecture
+
+CreditPilot V1 contains exactly five specialized LLM-enabled agents:
+
+1. Orchestrator Agent
+2. Policy Agent
+3. Verification Agent
+4. Explanation Agent
+5. Escalation Agent
+
+Additional agents must not be introduced without an explicit architecture
+change proposal and human approval.
+
+### 4.1 Orchestrator Agent
+
+Purpose:
+
+Determine the next investigation step based on the current case state.
+
+The Orchestrator Agent coordinates the investigation workflow but does not
+calculate credit risk or make final lending decisions.
+
+### 4.2 Policy Agent
+
+Purpose:
+
+Determine which synthetic credit policies are applicable to the current
+case evidence.
+
+The Policy Agent retrieves and interprets policy but must not invent policy,
+thresholds, or final credit decisions.
+
+### 4.3 Verification Agent
+
+Purpose:
+
+Gather approved external evidence when information is missing,
+inconsistent, or insufficient.
+
+Reported applicant information and verified information must remain separate.
+
+### 4.4 Explanation Agent
+
+Purpose:
+
+Convert existing model, SHAP, policy, verification, and decision evidence
+into a clear analyst-facing explanation.
+
+The Explanation Agent is read-only relative to decision evidence and must
+not modify model outputs, policy findings, or recommendations.
+
+### 4.5 Escalation Agent
+
+Purpose:
+
+Prepare and execute a controlled handoff to a human analyst when human
+review is required.
+
+External actions such as creating a review case or sending notifications
+must follow explicit preconditions, permissions, audit requirements,
+and idempotency controls.
+
+### 4.6 Non-Agent Components
+
+The following are explicitly NOT LLM-enabled agents:
+
+- application validation;
+- PII classification and tokenization;
+- feature engineering;
+- DTI and other deterministic calculations;
+- credit-risk model;
+- SHAP computation;
+- workflow state enforcement;
+- deterministic Decision Engine;
+- persistence;
+- audit logging;
+- permission enforcement;
+- retry and loop-limit enforcement.
+
+These components must not be converted into agents unless an approved
+architecture change is made.
