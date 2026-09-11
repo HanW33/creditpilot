@@ -160,6 +160,75 @@ PII access audit events should record:
 - access outcome;
 - related application or case reference.
 
-CreditPilot V1 uses synthetic, mock, simulated, or suitable public demo data only.
+## 3. Fundamental Architecture Principle
 
-It does not use real customer PII or proprietary bank underwriting policies.
+CreditPilot separates responsibilities across deterministic software,
+quantitative machine learning, LLM-enabled agents, and human decision-making.
+
+### 3.1 Deterministic Software
+
+Use deterministic software when explicit rules or calculations are sufficient.
+
+Deterministic components are responsible for:
+
+- application validation;
+- deterministic feature calculations;
+- explicit policy gates;
+- workflow safety rules;
+- state-transition enforcement;
+- decision rules;
+- permission enforcement;
+- retry limits;
+- investigation loop limits.
+
+### 3.2 Quantitative Machine Learning
+
+Quantitative ML is responsible for credit-risk prediction.
+
+This includes:
+
+- Probability of Default (PD) prediction;
+- risk scoring;
+- model calibration;
+- quantitative feature attribution using SHAP.
+
+LLMs and agents must never generate, replace, or modify quantitative model outputs.
+
+### 3.3 LLM-Enabled Agents
+
+Agents are used only where adaptive reasoning or workflow adaptation is required.
+
+Agents may perform activities such as:
+
+- identifying unresolved evidence;
+- planning investigation steps;
+- selecting authorized tools;
+- retrieving and interpreting policy;
+- requesting verification;
+- synthesizing evidence;
+- generating explanations;
+- preparing escalation.
+
+Agents must not replace deterministic logic or quantitative models when those mechanisms are sufficient.
+
+### 3.4 Human Authority
+
+CreditPilot is a decision-support system.
+
+Human review remains mandatory when required by policy, workflow rules,
+model failure, unresolved ambiguity, verification failure, or other
+configured review conditions.
+
+Agents must not bypass mandatory human review.
+
+### 3.5 Guiding Principle
+
+Use deterministic software when explicit logic is sufficient.
+
+Use quantitative ML for credit-risk prediction.
+
+Use LLM-enabled agents only where adaptive reasoning, investigation,
+tool selection, evidence gathering, or workflow adaptation is required.
+
+Use human review where final authority or unresolved risk requires
+human judgment.
