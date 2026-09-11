@@ -54,6 +54,107 @@ CreditPilot assists the analyst with:
 - escalating unresolved cases for human review.
 
 ### Data Scope
+## 2. Data Privacy and PII Architecture
+
+### 2.1 Core Principle
+
+Raw identity PII must be separated from the main AI and agent workflow.
+
+Agents and LLMs should operate primarily on:
+
+- application_id;
+- opaque customer_token;
+- non-PII application attributes;
+- sanitized evidence;
+- model outputs;
+- policy findings;
+- workflow state.
+
+Raw identity PII must not be unnecessarily exposed to agents or LLMs.
+
+### 2.2 PII Governance Layer
+
+All incoming application data must pass through a deterministic PII Governance Layer before entering the main CreditPilot AI workflow.
+
+The PII Governance Layer is responsible for:
+
+- schema-based PII classification;
+- deterministic PII identification;
+- tokenization;
+- identity separation;
+- context sanitization;
+- access-control enforcement;
+- PII access auditing.
+
+PII handling must not depend primarily on an LLM.
+
+### 2.3 Identity Tokenization
+
+Customer identity must be represented inside the AI workflow using an opaque customer_token.
+
+For example:
+
+Raw identity data may contain:
+
+- name;
+- email;
+- address;
+- synthetic identity identifiers.
+
+The main workflow instead uses:
+
+customer_token = opaque identifier
+
+The customer_token must not itself contain meaningful identity information.
+
+### 2.4 PII Vault
+
+Identity information and token-to-identity mappings must be stored separately from the main CreditState in a protected PII Vault.
+
+Agents must not directly access the PII Vault.
+
+PII Vault access must:
+
+- use explicitly authorized capabilities;
+- follow least-privilege access;
+- be independently audited;
+- be unavailable to ordinary agent reasoning.
+
+### 2.5 LLM Security Boundary
+
+Before any context is sent to an LLM:
+
+1. context must be constructed using an allowlist;
+2. unnecessary PII must be removed;
+3. deterministic PII redaction must be applied;
+4. only the minimum necessary information may be provided.
+
+The LLM must not be treated as the primary PII detection or protection mechanism.
+
+### 2.6 Notification Boundary
+
+Slack, email, or other external notifications must not contain unnecessary raw PII.
+
+Notifications should normally reference controlled identifiers such as:
+
+- application_id;
+- case_id;
+- customer_token.
+
+Authorized users may retrieve identity information separately through controlled systems when required.
+
+### 2.7 PII Auditability
+
+PII access must be auditable separately from normal model, agent, and workflow activity.
+
+PII access audit events should record:
+
+- actor;
+- timestamp;
+- purpose;
+- resource accessed;
+- access outcome;
+- related application or case reference.
 
 CreditPilot V1 uses synthetic, mock, simulated, or suitable public demo data only.
 
