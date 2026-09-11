@@ -314,3 +314,65 @@ The following are explicitly NOT LLM-enabled agents:
 
 These components must not be converted into agents unless an approved
 architecture change is made.
+
+## 5. Verification Responsibility Boundary
+
+Verification responsibility is deliberately separated across the Policy Agent,
+Orchestrator Agent, and Verification Agent.
+
+### 5.1 Policy Agent — WHAT Evidence Is Required
+
+The Policy Agent determines what evidence is required based on applicable
+synthetic policy.
+
+For example:
+
+> The applicable policy requires verified income.
+
+The Policy Agent may identify required evidence but does not perform
+external verification.
+
+### 5.2 Orchestrator Agent — WHETHER Verification Is Needed Now
+
+The Orchestrator Agent compares required evidence with the current case state.
+
+It determines whether the workflow should proceed to verification.
+
+For example:
+
+- required evidence: verified_income;
+- current evidence: verified_income is missing;
+- next workflow action: verification.
+
+The Orchestrator does not itself perform the verification.
+
+### 5.3 Verification Agent — HOW Evidence Is Obtained
+
+The Verification Agent determines how to obtain the requested evidence
+using only approved verification tools.
+
+Examples of approved verification capabilities may include:
+
+- verify_income();
+- verify_employment();
+- get_credit_report().
+
+The Verification Agent must not invent missing evidence.
+
+Reported applicant information must not be overwritten by verified evidence.
+Both must remain separately traceable.
+
+### 5.4 Responsibility Principle
+
+The responsibility boundary is:
+
+Policy Agent → WHAT evidence is required.
+
+Orchestrator Agent → WHETHER the current workflow requires verification.
+
+Verification Agent → HOW the required evidence is obtained.
+
+Deterministic workflow controls enforce whether the requested transition
+and tool invocation are permitted.
+
+No single agent owns the entire verification decision chain.
