@@ -601,3 +601,125 @@ Agents provide reasoning, investigation, policy interpretation,
 verification, explanation, and escalation support.
 
 Human analysts retain final authority wherever human review is required.
+
+## 8. Human-in-the-Loop and Escalation
+
+CreditPilot uses human-in-the-loop controls for cases that require
+human judgment, mandatory review, or controlled escalation.
+
+Human review is a protected workflow state and must not be bypassed
+by an LLM-enabled agent.
+
+### 8.1 Human Review Triggers
+
+Human review may be required when:
+
+- policy explicitly requires human review;
+- critical evidence remains unresolved;
+- verification fails or produces conflicting evidence;
+- model execution fails;
+- policy retrieval or interpretation remains unresolved;
+- investigation limits are reached;
+- workflow safety controls require escalation;
+- the deterministic Decision Engine produces MANUAL_REVIEW;
+- another configured mandatory-review condition is triggered.
+
+### 8.2 Escalation Agent Responsibility
+
+The Escalation Agent prepares a structured handoff to an authorized
+human analyst.
+
+It may:
+
+- summarize the case;
+- summarize model evidence;
+- summarize policy findings;
+- summarize verification evidence;
+- identify unresolved issues;
+- explain why human review is required;
+- prepare an escalation package;
+- request approved external actions through authorized tools.
+
+The Escalation Agent must not make the human decision.
+
+### 8.3 Human Review Package
+
+A human-review package should contain sufficient decision evidence
+without unnecessarily exposing raw PII.
+
+Conceptual contents include:
+
+- application or case reference;
+- sanitized application summary;
+- model output and model version;
+- SHAP risk factors;
+- applicable policy findings;
+- verification evidence;
+- unresolved conflicts;
+- deterministic recommendation;
+- reason for escalation;
+- relevant audit references.
+
+Identity information must be accessed separately through authorized
+PII controls when genuinely required.
+
+### 8.4 External Escalation Actions
+
+External actions must occur only through approved tools.
+
+Examples may include:
+
+- create_review_case();
+- send_notification().
+
+External actions must be:
+
+- permission controlled;
+- auditable;
+- idempotent where appropriate;
+- sanitized for unnecessary PII;
+- subject to deterministic preconditions.
+
+An agent must not directly call arbitrary external systems.
+
+### 8.5 Human Decision Authority
+
+When a case enters mandatory human review, an authorized human analyst
+retains decision authority.
+
+The system may provide:
+
+- quantitative risk evidence;
+- policy evidence;
+- verification evidence;
+- explanations;
+- structured recommendations.
+
+These outputs support human judgment but do not replace it.
+
+### 8.6 Auditability
+
+Human-review and escalation activity must be auditable.
+
+The system should preserve:
+
+- why escalation occurred;
+- which evidence was available;
+- which recommendation was produced;
+- which external actions were requested;
+- action outcomes;
+- relevant timestamps;
+- human-review outcome where captured;
+- relevant model, policy, and workflow versions.
+
+### 8.7 Core Human-in-the-Loop Principle
+
+Agents may prepare and coordinate escalation.
+
+Authorized tools may perform controlled external actions.
+
+The Workflow Controller enforces valid escalation transitions.
+
+The human analyst performs the human review.
+
+Mandatory human review cannot be bypassed by an agent.
