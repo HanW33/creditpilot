@@ -54,6 +54,10 @@ CreditPilot assists the analyst with:
 - escalating unresolved cases for human review.
 
 ### Data Scope
+CreditPilot V1 uses synthetic, mock, simulated, or suitable public demo data only.
+
+It does not use real customer PII or proprietary bank underwriting policies.
+
 ## 2. Data Privacy and PII Architecture
 
 ### 2.1 Core Principle
