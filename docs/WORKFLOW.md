@@ -190,13 +190,16 @@ authorized current CreditState.
 It proposes the next workflow action. It does not enforce the transition,
 perform verification, calculate risk, or make the final recommendation.
 
-### Step 11 — Route Missing Evidence Through Controls
+### Step 11 — Create an Approved Verification Request
 
-If required evidence is missing, the Orchestrator proposes verification.
+If required evidence is missing, the Orchestrator proposes creation of a
+verification request.
 
-The deterministic Workflow Controller decides whether the transition and tool
-invocation are permitted. It validates permissions, state, preconditions,
-retry limits, investigation limits, and mandatory-review conditions.
+Deterministic workflow and state controls validate permissions, state,
+preconditions, retry limits, investigation limits, and mandatory-review
+conditions. When permitted, they create and commit the protected verification
+request. The Verification Agent may act only on that approved committed
+request.
 
 ### Step 12 — Execute Approved Verification Tools
 
@@ -260,13 +263,15 @@ The Workflow Controller deterministically enforces:
 Uncontrolled recursive agent execution is prohibited. When limits are reached,
 the workflow stops safely and routes according to configured rules.
 
-### Step 18 — Pass Eligible Evidence to the Decision Engine
+### Step 18 — Check Decision Engine Eligibility
 
-When deterministic workflow controls determine that the case is eligible,
-provide the committed approved model, policy, verification, validation, and
-workflow evidence to the deterministic Decision Engine.
+Before Decision Engine entry, the Workflow Controller deterministically checks
+whether committed evidence is eligible.
 
-Only committed, authorized evidence may be used.
+If model failure, critical missing evidence, or another configured condition
+makes the evidence ineligible, the normal Decision Engine path does not run and
+the case routes safely to human review. Only eligible committed, authorized
+evidence proceeds to the Decision Engine.
 
 ### Step 19 — Produce a Structured Recommendation
 
@@ -281,7 +286,12 @@ It exclusively writes:
 No LLM-enabled agent may directly produce or modify these protected fields.
 Credit-risk prediction and recommendation remain separate responsibilities.
 
-### Step 20 — Route Mandatory-Review Cases
+### Step 20 — Enforce Mandatory Review After Recommendation
+
+After the Decision Engine writes a recommendation for an eligible case, the
+Workflow Controller enforces every applicable mandatory human-review
+condition. It routes the case to human review when required but must not rewrite
+the Decision Engine recommendation.
 
 Mandatory human-review conditions take precedence over an otherwise eligible
 automated recommendation.
@@ -335,13 +345,13 @@ Policy Agent
   WHAT evidence is required
         ↓
 Orchestrator Agent
-  WHETHER verification is needed now
+  WHETHER verification is needed and proposes request
         ↓
-Workflow Controller
-  WHETHER the transition and tool call are permitted
+Deterministic workflow and state controls
+  validate create and commit the protected request
         ↓
 Verification Agent
-  HOW the evidence is obtained
+  HOW the approved request is executed
         ↓
 Approved verification tool
   obtains and returns raw evidence
@@ -439,8 +449,9 @@ unnecessary raw tool payloads.
 5. The Policy Agent determines WHAT evidence is required.
 6. The Orchestrator determines WHETHER verification is needed.
 7. The Verification Agent determines HOW to obtain evidence.
-8. Tools obtain facts; agents may interpret and propose; deterministic controls
-   protect state.
+8. The Orchestrator proposes verification-request creation; deterministic
+   controls create the protected request; tools obtain facts; agents may
+   interpret and propose; deterministic controls protect state.
 9. Reported and verified evidence remain separate.
 10. The Orchestrator proposes transitions; the Workflow Controller enforces
     them.
@@ -454,7 +465,6 @@ unnecessary raw tool payloads.
 
 This workflow does not resolve:
 
-- classification of sensitive credit attributes;
 - physical implementation technology for CreditState;
 - synthetic PD or workflow thresholds;
 - verification providers;
