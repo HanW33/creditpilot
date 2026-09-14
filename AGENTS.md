@@ -221,7 +221,7 @@ The architecture specification intentionally leaves these matters open:
 - synthetic PD and workflow thresholds;
 - verification providers;
 - human-review interface;
-- baseline and challenger model choice.
+- challenger model choice.
 
 Do not silently decide or encode answers to these questions. Any resolution
 requires the later design approval identified in the architecture specification.

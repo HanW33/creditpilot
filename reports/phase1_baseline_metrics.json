@@ -1,0 +1,121 @@
+{
+  "model_version": "logistic-regression-v1",
+  "feature_version": "credit-features-v1",
+  "data_version": "synthetic-credit-v1",
+  "random_seed": 33,
+  "sample_count": 1000,
+  "target_rate": 0.104,
+  "diagnostic_cutoff": 0.5,
+  "diagnostic_cutoff_notice": "Model evaluation only; not a lending or recommendation threshold.",
+  "metrics": {
+    "roc_auc": 0.6268136160714286,
+    "pr_auc": 0.20089356109566084,
+    "precision": 0.6666666666666666,
+    "recall": 0.019230769230769232,
+    "f1": 0.037383177570093455,
+    "ks": 0.23549107142857145,
+    "brier_score": 0.09084700590003843,
+    "confusion_matrix": [
+      [
+        895,
+        1
+      ],
+      [
+        102,
+        2
+      ]
+    ],
+    "calibration": [
+      {
+        "predicted": 0.021823113352488255,
+        "observed": 0.04
+      },
+      {
+        "predicted": 0.036285816872444275,
+        "observed": 0.1
+      },
+      {
+        "predicted": 0.048006267662923506,
+        "observed": 0.08
+      },
+      {
+        "predicted": 0.05901304620614286,
+        "observed": 0.06
+      },
+      {
+        "predicted": 0.07112038386158659,
+        "observed": 0.07
+      },
+      {
+        "predicted": 0.08348584450411259,
+        "observed": 0.12
+      },
+      {
+        "predicted": 0.10100790454961846,
+        "observed": 0.05
+      },
+      {
+        "predicted": 0.12768734802284373,
+        "observed": 0.11
+      },
+      {
+        "predicted": 0.16720350241831142,
+        "observed": 0.2
+      },
+      {
+        "predicted": 0.2797641607641652,
+        "observed": 0.21
+      }
+    ]
+  },
+  "configuration": {
+    "random_seed": 33,
+    "sample_count": 5000,
+    "test_fraction": 0.2,
+    "validation_fraction": 0.2,
+    "diagnostic_cutoff": 0.5,
+    "data_version": "synthetic-credit-v1",
+    "feature_version": "credit-features-v1",
+    "model_version": "logistic-regression-v1"
+  },
+  "splits": {
+    "train": {
+      "sample_count": 3000,
+      "target_rate": 0.10366666666666667
+    },
+    "validation": {
+      "sample_count": 1000,
+      "target_rate": 0.104
+    },
+    "test": {
+      "sample_count": 1000,
+      "target_rate": 0.104
+    }
+  },
+  "shap": {
+    "model_version": "logistic-regression-v1",
+    "feature_version": "credit-features-v1",
+    "sample_count": 200,
+    "mean_absolute_shap": {
+      "credit_history_years": 0.33079872792630083,
+      "delinquency_count": 0.2950882049464565,
+      "credit_utilization": 0.26640054730136314,
+      "recent_inquiries": 0.17532897718074417,
+      "requested_amount": 0.1617982854828076,
+      "dti": 0.14381028301352994,
+      "home_ownership_rent": 0.0943923225752203,
+      "annual_income": 0.09101427473115628,
+      "monthly_debt_payment": 0.07416270939838968,
+      "employment_type_salaried": 0.07056771448605048,
+      "employment_years": 0.06383885147597658,
+      "home_ownership_own": 0.06270731073467518,
+      "loan_term_months": 0.05002470589940344,
+      "employment_type_contract": 0.03127498686273069,
+      "home_ownership_mortgage": 0.027078812235191617,
+      "home_ownership_other": 0.007979333058215876,
+      "employment_type_self_employed": 0.00503143503829248,
+      "employment_type_other": 0.0032066388482801787,
+      "existing_debt": 0.0006665170644612527
+    }
+  }
+}

@@ -93,6 +93,42 @@ Phase 0 documentation is approved and frozen as of 2026-09-15.
 Current phase: Phase 1 - synthetic dataset and quantitative credit-risk model.
 The approved baseline is scikit-learn Logistic Regression.
 
+## Phase 1 Baseline
+
+The current implementation provides:
+
+- deterministic synthetic credit-risk data with no real PII;
+- validated numeric and categorical model features;
+- stratified training, validation, and test splits;
+- an sklearn Logistic Regression probability-of-default baseline;
+- ROC-AUC, PR-AUC, Precision, Recall, F1, KS, Brier score, confusion matrix,
+  and calibration evaluation;
+- quantitative SHAP attribution;
+- tests for reproducibility, schema protection, model output, and SHAP.
+
+Install the package and development dependencies:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+Run checks:
+
+```bash
+python -m ruff check .
+python -m pytest
+```
+
+Generate the reproducible baseline report:
+
+```bash
+python -m creditpilot.ml.cli \
+  --output reports/phase1_baseline_metrics.json
+```
+
+The configured cutoff is for model diagnostics only. It is not a lending,
+policy, risk-band, or recommendation threshold.
+
 ## Planned Development Sequence
 
 1. Phase 0 - architecture and harness documentation;
