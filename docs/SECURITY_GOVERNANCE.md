@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 0 — Proposed Security and Governance Design
+Phase 0 — Approved and Frozen
 
-Pending human review.
+Approved and frozen on 2026-09-15.
 
 ## Authority
 
@@ -310,7 +310,7 @@ These require explicit later design approval.
 
 ## 17. Review Gate
 
-Before approval:
+The approved document must continue to satisfy:
 
 - confirm the PII Vault and main-workflow boundary;
 - approve sensitive-attribute classification separately;
