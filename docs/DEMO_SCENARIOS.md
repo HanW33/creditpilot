@@ -126,7 +126,7 @@ The exact synthetic inputs and decision thresholds require separate approval.
 | Expected policy behaviour | Policy Agent grounds the requirement for verified income, then reruns evaluation when the relevant committed evidence changes. |
 | Expected agent actions | Orchestrator proposes verification; Verification Agent selects an approved method and interprets tool evidence; Explanation and Escalation Agents prepare their approved outputs after the recommendation. |
 | Expected tool calls | `verify_income()` plus approved data, calculation, model, SHAP, policy, and controlled escalation tools required by the path. |
-| Expected workflow path | Verification, deterministic commit, recalculation, model rerun, policy rerun, Decision Engine, mandatory review, and controlled escalation. |
+| Expected workflow path | Verification-request creation, deterministic commit, evidence acquisition, state update, recalculation, model rerun, policy rerun, eligibility check, Decision Engine, mandatory-review enforcement, and controlled escalation. |
 | Expected final state | Reported and verified incomes remain separate; the architecture-defined synthetic outcome is `MANUAL_REVIEW`; human review remains required. |
 | Must not occur | Overwriting reported income, fabricated verification, direct agent commit, skipped required reruns, agent-written recommendation, or bypassed human review. |
 
@@ -151,9 +151,9 @@ Application reports income = 150000
 → PII governance, validation, and features
 → Quantitative model and SHAP
 → Policy requires verified income
-→ Orchestrator identifies missing evidence
-→ Workflow Controller authorizes verification
-→ Verification Agent selects HOW to obtain evidence
+→ Orchestrator identifies missing evidence and proposes request creation
+→ deterministic controls validate, create, and commit the verification request
+→ Verification Agent selects HOW to execute the approved request
 → approved verify_income() tool
 → raw verification evidence returned
 → Verification Agent interprets and proposes update
@@ -172,8 +172,10 @@ Application reports income = 150000
 ### Ownership Checks
 
 - Policy Agent determines WHAT evidence is required;
-- Orchestrator determines WHETHER verification is needed;
-- Verification Agent determines HOW it is obtained;
+- Orchestrator determines WHETHER verification is needed and proposes request
+  creation;
+- deterministic controls validate, create, and commit the protected request;
+- Verification Agent determines HOW the approved request is executed;
 - the tool returns raw evidence;
 - deterministic controls commit protected verification state;
 - the Decision Engine writes the recommendation;
@@ -318,7 +320,6 @@ violation, or agent-written recommendation fails the demo.
 This document does not select:
 
 - final synthetic application records;
-- sensitive credit-attribute classification;
 - policy or model thresholds;
 - verification provider;
 - quantitative model;
