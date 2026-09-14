@@ -283,7 +283,7 @@ The following remain subject to later approval:
 - synthetic decision and workflow thresholds;
 - verification providers;
 - human-review interface;
-- baseline and challenger model choice;
+- challenger model choice;
 - concrete evaluation metrics and acceptance thresholds.
 
 No implementation should resolve these silently.
