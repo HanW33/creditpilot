@@ -153,6 +153,11 @@ report evidence, or another supported item as required when grounded in
 retrieved policy. It must not call verification a success, fabricate evidence,
 or perform the verification itself.
 
+The Orchestrator decides whether verification is needed and proposes request
+creation. Deterministic workflow and state controls validate, create, and
+commit the protected request. The Verification Agent determines how to execute
+only an approved committed request.
+
 ## 9. State and Ownership
 
 Approved retrieval capabilities return raw policy evidence. The Policy Agent
@@ -260,7 +265,6 @@ This document does not select:
 - chunking implementation;
 - retrieval ranking threshold;
 - physical policy schema;
-- sensitive-attribute classification;
 - quantitative credit model;
 - human-review interface.
 
