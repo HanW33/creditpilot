@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 0 — Proposed Workflow Definition
+Phase 0 — Approved and Frozen
 
-Pending human review.
+Approved and frozen on 2026-09-15.
 
 ## Authority
 
@@ -469,7 +469,7 @@ This workflow does not resolve:
 - synthetic PD or workflow thresholds;
 - verification providers;
 - human-review interface;
-- baseline or challenger model choice;
+- challenger model choice;
 - numeric retry, loop, tool-call, or timeout limits;
 - concrete workflow-stage enum values.
 
@@ -477,7 +477,7 @@ These decisions require their own approved design process.
 
 ## 12. Review Gate
 
-Before this workflow definition is treated as frozen:
+The frozen workflow definition must continue to satisfy:
 
 - confirm that all 22 canonical architecture steps are represented;
 - confirm deterministic, ML, agent, tool, and human responsibilities;
