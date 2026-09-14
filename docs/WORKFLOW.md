@@ -76,34 +76,28 @@ must not make the human decision.
 
 The canonical workflow is:
 
-```text
-Application
-  ↓
-PII classification, separation, and tokenization
-  ↓
-Deterministic validation and feature calculation
-  ↓
-Quantitative model and SHAP
-  ↓
-Policy retrieval and interpretation
-  ↓
-Orchestrator evaluates current case state
-  ↓
-┌──────────────── Evidence missing? ────────────────┐
-│ Yes                                               │ No
-↓                                                   ↓
-Workflow Controller authorizes verification     Decision eligibility
-  ↓                                                   ↓
-Verification Agent selects HOW                  Deterministic Decision Engine
-  ↓                                                   ↓
-Approved verification tool                     Recommendation
-  ↓                                                   ↓
-Deterministic evidence commit                   Human review if required
-  ↓                                                   ↓
-Feature/model/policy recalculation              Explanation / escalation
-  └──────────── bounded investigation loop ──────────┘
-                         ↓
-                  Audit preservation
+```mermaid
+flowchart TD
+    A[Synthetic application] --> P[PII classification separation and tokenization]
+    P --> V[Deterministic validation and feature calculation]
+    V --> M[Quantitative model and SHAP]
+    M --> R[Policy retrieval and interpretation]
+    R --> O[Orchestrator evaluates current case state]
+    O --> C{Evidence missing}
+    C -- Yes --> W[Workflow Controller validates verification transition]
+    W --> VA[Verification Agent selects HOW]
+    VA --> T[Approved verification tool returns raw evidence]
+    T --> S[Deterministic controls validate and commit verification state]
+    S --> F[Recalculate features and rerun model or policy when required]
+    F --> O
+    C -- No --> E[Decision eligibility]
+    E --> D[Deterministic Decision Engine]
+    D --> H{Human review required}
+    H -- No --> X[Explanation]
+    H -- Yes --> ES[Controlled escalation]
+    ES --> HA[Human analyst]
+    X --> A1[Audit preservation]
+    HA --> A1
 ```
 
 The diagram is a summary only. The numbered steps below are authoritative
