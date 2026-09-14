@@ -171,7 +171,23 @@ The Policy Agent does not write:
 Policy findings consumed downstream must preserve the input state version,
 policy version, and source references used.
 
-## 10. Policy Change and Reevaluation
+## 10. Policy Versioning
+
+Every policy document and material retrieval result must preserve a
+`policy_version`. Effective date should also be retained where applicable.
+
+A policy finding must identify the policy version or versions used. Rerunning
+policy analysis must create a traceable new finding rather than erase the
+evidence and interpretation used previously.
+
+If multiple versions are retrieved, or the applicable version is unclear, the
+Policy Agent must record the conflict or unresolved question. It must not
+silently select a version or infer an effective-date rule.
+
+This document does not define policy migration, precedence, or version-selection
+logic. Those rules require explicit approval.
+
+## 11. Policy Change and Reevaluation
 
 When relevant committed evidence changes, policy evaluation must rerun where
 required.
@@ -187,7 +203,7 @@ The new finding must:
 This document does not define policy effective-date selection rules or policy
 migration behaviour beyond the traceability requirements in the architecture.
 
-## 11. Failure Handling
+## 12. Failure Handling
 
 If retrieval fails:
 
@@ -207,7 +223,7 @@ If Policy Agent output is invalid:
 Policy conflicts and unresolved interpretations must remain explicit and may
 trigger human review under configured workflow rules.
 
-## 12. Evaluation Requirements
+## 13. Evaluation Requirements
 
 Policy evaluation should verify:
 
@@ -222,7 +238,7 @@ Policy evaluation should verify:
 
 No acceptance threshold is selected in this document.
 
-## 13. Security and Audit
+## 14. Security and Audit
 
 Policy retrieval and interpretation must:
 
@@ -234,7 +250,7 @@ Policy retrieval and interpretation must:
 - avoid unnecessary raw PII in prompts, logs, and traces;
 - preserve source and version provenance.
 
-## 14. Decisions Not Made Here
+## 15. Decisions Not Made Here
 
 This document does not select:
 
@@ -250,7 +266,7 @@ This document does not select:
 
 These require separate approved design decisions.
 
-## 15. Review Gate
+## 16. Review Gate
 
 Before approval:
 
