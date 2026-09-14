@@ -125,8 +125,10 @@ recommendation.
 When required evidence is missing, the system must route through deterministic
 controls to the Verification Agent and approved verification tools.
 
-Tools obtain raw evidence, the Verification Agent interprets and proposes
-updates, and deterministic controls commit protected verification state.
+The Orchestrator proposes verification-request creation. Deterministic workflow
+and state controls validate, create, and commit the protected request. Tools
+obtain raw evidence, the Verification Agent interprets and proposes updates,
+and deterministic controls commit protected verification state.
 
 ### BR-F08 — Evidence Recalculation
 
@@ -135,8 +137,11 @@ deterministic features and rerun model or policy evaluation where required.
 
 ### BR-F09 — Recommendation
 
-The deterministic Decision Engine must produce the structured recommendation,
-decision rule, and decision reason using approved committed evidence.
+Before Decision Engine entry, the Workflow Controller checks whether committed
+evidence is eligible and safely routes ineligible mandatory-review cases. For
+eligible cases, the deterministic Decision Engine produces the structured
+recommendation, decision rule, and decision reason. The Workflow Controller
+then enforces mandatory review without rewriting the recommendation.
 
 ### BR-F10 — Explanation
 
@@ -274,7 +279,6 @@ Specific quantitative acceptance thresholds are not defined here.
 
 The following remain subject to later approval:
 
-- classification of sensitive credit attributes;
 - final CreditState design approval;
 - synthetic decision and workflow thresholds;
 - verification providers;
