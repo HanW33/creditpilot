@@ -211,7 +211,30 @@ For each scenario, capture:
 - expected audit evidence;
 - prohibited behaviours.
 
-## 13. Evaluation Record
+## 13. Golden Demos as Future Executable Tests
+
+In later implementation phases, each Golden Demo must become a versioned
+end-to-end test fixture with:
+
+- synthetic starting data;
+- expected model-state conditions without inventing unapproved thresholds;
+- expected policy findings and citations;
+- expected agent actions and prohibited actions;
+- expected tool calls and explicit non-calls;
+- expected workflow transitions;
+- expected protected state ownership;
+- expected final decision-support or human-review state;
+- expected audit records;
+- injected failure variants.
+
+The tests must assert architecture invariants, not merely compare narrative
+text. They should verify structured outputs, state transitions, ownership,
+provenance, failure routing, and prohibited behaviour.
+
+Executable test implementation begins only in the appropriate later phase after
+the relevant modules and open decisions have been approved.
+
+## 14. Evaluation Record
 
 Each evaluation run should preserve:
 
@@ -228,7 +251,7 @@ Each evaluation run should preserve:
 - timestamps;
 - evidence and audit references.
 
-## 14. Acceptance Rules
+## 15. Acceptance Rules
 
 Architecture invariants are hard requirements. A violation of protected
 ownership, PII separation, recommendation authority, mandatory review, evidence
@@ -239,7 +262,7 @@ Quantitative targets and quality thresholds are not set in this document.
 They must be configurable, clearly identified as synthetic where applicable,
 and approved separately.
 
-## 15. Decisions Not Made Here
+## 16. Decisions Not Made Here
 
 This document does not select:
 
@@ -253,7 +276,7 @@ This document does not select:
 - human-review interface;
 - baseline or challenger model.
 
-## 16. Review Gate
+## 17. Review Gate
 
 Before approval:
 
