@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 0 — Proposed Credit Policy Design
+Phase 0 — Approved and Frozen
 
-Pending human review.
+Approved and frozen on 2026-09-15.
 
 ## Authority
 
@@ -272,7 +272,7 @@ These require separate approved design decisions.
 
 ## 16. Review Gate
 
-Before approval:
+The approved document must continue to satisfy:
 
 - confirm the source and finding structures;
 - confirm retrieval traceability;
