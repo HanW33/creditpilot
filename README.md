@@ -46,6 +46,9 @@ No additional agent is approved for V1.
 - Policy Agent determines WHAT evidence is required.
 - Orchestrator Agent determines WHETHER verification is needed now.
 - Verification Agent determines HOW evidence is obtained.
+- The Orchestrator proposes verification-request creation.
+- Deterministic workflow and state controls validate, create, and commit the
+  protected request.
 - Approved verification tools return raw evidence.
 - Deterministic controls validate and commit protected verification state.
 
@@ -104,8 +107,9 @@ The architecture must be reviewed and frozen before implementation begins.
 14. Phase 13 - API and analyst interface;
 15. Phase 14 - deployment and monitoring.
 
-The technology choices and other open design questions remain subject to human
-approval.
+Credit data classification, verification-request ownership, and mandatory
+review ordering were approved on 2026-09-15. Remaining technology choices and
+open design questions remain subject to human approval.
 
 ## Golden Demo Scenarios
 
