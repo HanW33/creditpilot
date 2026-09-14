@@ -126,9 +126,12 @@ workflow. Verification must never overwrite reported values.
 Deterministic ingestion and PII-governance components write this domain.
 Agents do not directly mutate source application data.
 
-This document does not classify income, employment, bureau information, or
-verified financial evidence as PII, sensitive personal information, or
-ordinary credit-risk features. OQ-1 remains open.
+Income, employment information, credit bureau information, and verified
+financial evidence are Sensitive Credit Data. They may enter CreditState only
+in structured, minimum-necessary, access-controlled form.
+
+Derived DTI and other approved risk features may enter protected CreditState
+under explicit ownership and minimum-context controls.
 
 ### 4.4 `validation_state`
 
@@ -226,6 +229,10 @@ verification_state
 ├── verified_values
 └── conflicts[]
 ```
+
+The Orchestrator proposes creation of a verification request. Deterministic
+workflow and state controls validate, create, and commit the protected request.
+The Verification Agent may act only on an approved committed request.
 
 Approved verification tools obtain and return raw verification evidence. The
 Verification Agent may interpret and structure evidence and propose evidence or
@@ -364,6 +371,7 @@ versions.
 | Structured policy findings | Authorized components and agents | Policy Agent | Policy Agent through deterministic validation and commit controls |
 | Raw verification evidence | Verification Agent and authorized components | Approved verification tools | Stored through the controlled verification evidence path |
 | Verification interpretation and proposed update | Authorized components | Verification Agent | Not a committed protected value until deterministic validation |
+| Protected verification request | Verification Agent and authorized components | Orchestrator Agent proposes creation | Deterministic workflow and state controls validate, create, and commit |
 | Committed verified values | Authorized components and agents | Verification Agent proposes from tool evidence | Deterministic workflow and state controls validate and commit |
 | Proposed next workflow action | Workflow Controller and authorized components | Orchestrator Agent | Orchestrator-owned proposal field through controlled update |
 | Workflow transitions and counters | Authorized components and agents | Workflow Controller | Workflow Controller |
@@ -442,8 +450,8 @@ Derived results identify the committed state version used so outdated outputs
 can be detected.
 
 This design does not decide whether a feature uses a reported or verified
-value. That requires explicit deterministic feature logic consistent with the
-approved classification of sensitive credit attributes.
+value. That requires explicit deterministic feature logic while preserving the
+approved Sensitive Credit Data classification and protected ownership.
 
 ## 9. Failure Representation
 
@@ -491,7 +499,6 @@ Every implementation must preserve these invariants:
 This document proposes the CreditState logical schema for OQ-2. It does not
 resolve:
 
-- OQ-1: classification of sensitive credit attributes;
 - OQ-3: synthetic PD and workflow thresholds;
 - OQ-4: verification providers;
 - OQ-5: human-review interface;
