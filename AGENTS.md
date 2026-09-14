@@ -148,6 +148,32 @@ Do not use an LLM as the primary PII detection or protection mechanism.
 Notifications and logs must avoid unnecessary raw PII. Keep PII-access auditing
 separately identifiable from ordinary workflow auditing.
 
+## Approved Credit Data Classification
+
+CreditPilot V1 uses three information classes:
+
+- Identity PII includes raw name, email, address, identity identifiers, and
+  token mappings and remains in the protected PII Vault.
+- Sensitive Credit Data includes income, employment information, credit bureau
+  information, and verified financial evidence. It may enter CreditState only
+  in structured, minimum-necessary, access-controlled form.
+- Derived Risk Features include DTI, approved derived features, PD, risk band,
+  and SHAP. They may enter protected CreditState under explicit ownership and
+  minimum-context controls.
+
+Raw identity documents and unnecessary identity PII must not enter CreditState
+or ordinary agent and LLM context.
+
+When verification is required, the Orchestrator proposes request creation.
+Deterministic workflow and state controls validate, create, and commit the
+protected verification request. The Verification Agent may act only on an
+approved committed request.
+
+Before Decision Engine entry, the Workflow Controller checks evidence
+eligibility and routes ineligible mandatory-review cases safely. For eligible
+cases, the Decision Engine writes the recommendation. The Workflow Controller
+then enforces every mandatory-review condition without rewriting it.
+
 ## Tools, External Actions, and Policy Retrieval
 
 Treat tools as typed, bounded capabilities with explicit permissions. Give each
@@ -191,7 +217,6 @@ reason, human-review outcome where captured, and timestamps.
 
 The architecture specification intentionally leaves these matters open:
 
-- classification of sensitive credit attributes;
 - physical CreditState schema;
 - synthetic PD and workflow thresholds;
 - verification providers;
