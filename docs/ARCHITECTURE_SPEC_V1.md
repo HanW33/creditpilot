@@ -160,6 +160,25 @@ PII access audit events should record:
 - access outcome;
 - related application or case reference.
 
+### 2.8 Credit Data Classification
+
+CreditPilot V1 uses three information classes.
+
+Identity PII includes raw name, email, address, identity identifiers, and
+token-to-identity mappings. Identity PII must remain in the protected PII Vault
+and must not enter the main CreditState.
+
+Sensitive Credit Data includes income, employment information, credit bureau
+information, and verified financial evidence. Sensitive Credit Data may enter
+CreditState only in structured, minimum-necessary, access-controlled form. Raw
+identity documents and unnecessary identity PII must not be included in
+CreditState or ordinary agent and LLM context.
+
+Derived Risk Features include DTI, other approved derived risk features, PD,
+risk band, and SHAP output. These may enter CreditState subject to explicit
+field ownership, protected-state controls, least privilege, and minimum-context
+rules.
+
 ## 3. Fundamental Architecture Principle
 
 CreditPilot separates responsibilities across deterministic software,
@@ -346,6 +365,11 @@ For example:
 
 The Orchestrator does not itself perform the verification.
 
+When verification is needed, the Orchestrator proposes creation of a
+verification request. Deterministic workflow and state controls validate the
+proposal and create and commit the protected verification request. The
+Verification Agent may act only on an approved committed verification request.
+
 ### 5.3 Verification Agent — HOW Evidence Is Obtained
 
 The Verification Agent determines how to obtain the requested evidence
@@ -378,6 +402,11 @@ Verification Agent → HOW the required evidence is obtained.
 
 Deterministic workflow controls enforce whether the requested transition
 and tool invocation are permitted.
+
+The Policy Agent identifies the evidence requirement. The Orchestrator proposes
+the verification request. Deterministic workflow and state controls own
+creation and commit of the protected request. The Verification Agent determines
+how to execute the approved request.
 
 No single agent owns the entire verification decision chain.
 
@@ -449,8 +478,10 @@ Examples:
 - approved verification tools obtain and return raw verification evidence;
 - Verification Agent interprets and structures verification evidence and proposes
   verification-state updates;
-- deterministic workflow and state controls validate and commit protected
-  verification-state updates to CreditState;
+- Orchestrator Agent proposes verification-request creation;
+- deterministic workflow and state controls create and commit protected
+  verification requests and validate and commit protected verification-state
+  updates to CreditState;
 - Orchestrator Agent owns proposed next workflow action;
 - Decision Engine exclusively owns recommendation fields;
 - Explanation Agent owns analyst-facing explanation;
@@ -570,12 +601,27 @@ The Decision Engine applies explicit deterministic recommendation logic.
 No LLM-enabled agent may directly produce or modify the protected
 recommendation fields.
 
-### 7.4 Mandatory Review Overrides
+### 7.4 Mandatory Review Eligibility and Enforcement
 
-Mandatory human-review conditions take precedence over an otherwise
-eligible automated recommendation.
+Mandatory human-review conditions take precedence over an otherwise eligible
+automated recommendation.
 
-Examples may include:
+Before Decision Engine entry, the Workflow Controller deterministically checks
+whether the committed evidence is eligible for recommendation processing. If a
+model failure, critical missing evidence, or another configured condition makes
+the evidence ineligible, the normal Decision Engine path must not run and the
+case must route safely to human review.
+
+For eligible cases, the Decision Engine applies explicit deterministic rules
+and may produce `MANUAL_REVIEW` when those rules require it.
+
+After the Decision Engine writes its recommendation, the Workflow Controller
+enforces all applicable mandatory human-review conditions. It must route the
+case to human review even if another recommendation would otherwise be
+eligible. The Workflow Controller controls routing but must not rewrite the
+Decision Engine recommendation.
+
+Examples of mandatory-review conditions may include:
 
 - unresolved policy conflict;
 - critical missing evidence;
@@ -586,7 +632,8 @@ Examples may include:
 - configured high-risk workflow conditions;
 - explicit mandatory-review rules.
 
-The system must not allow an agent to bypass these conditions.
+The system must not allow an agent or recommendation to bypass these
+conditions.
 
 ### 7.5 Synthetic Thresholds
 
@@ -747,17 +794,22 @@ The canonical CreditPilot V1 workflow is:
 8. Retrieve and interpret applicable synthetic policy.
 9. Identify required evidence and policy constraints.
 10. Let the Orchestrator evaluate the current case state.
-11. If evidence is missing, route through deterministic workflow controls
-    to the Verification Agent.
-12. Execute approved verification tools.
+11. If evidence is missing, let the Orchestrator propose a verification
+    request and let deterministic workflow and state controls validate, create,
+    and commit the protected request before routing to the Verification Agent.
+12. Execute approved verification tools only for an approved committed
+    verification request.
 13. Store verified evidence separately from reported applicant information.
 14. Recalculate affected deterministic features where required.
 15. Rerun the quantitative model when relevant inputs materially change.
 16. Rerun policy evaluation when relevant evidence changes.
 17. Continue the investigation loop within configured limits.
-18. Pass eligible case evidence to the deterministic Decision Engine.
-19. Produce a structured recommendation.
-20. Route mandatory-review cases to human review.
+18. Let the Workflow Controller check recommendation eligibility and pass only
+    eligible committed case evidence to the deterministic Decision Engine;
+    route ineligible mandatory-review cases safely to human review.
+19. Produce a structured recommendation for eligible cases.
+20. After recommendation, let the Workflow Controller enforce every applicable
+    mandatory-review condition without rewriting the recommendation.
 21. Generate an analyst-facing explanation.
 22. Preserve model, policy, workflow, tool, escalation, and audit evidence.
 
@@ -1101,25 +1153,48 @@ The following rules must remain true throughout V1 implementation:
 18. Failures are explicit and safely routed.
 19. Model, policy, workflow, and decision versions remain traceable.
 20. Material architecture changes require explicit human approval.
+21. Sensitive Credit Data enters CreditState only in structured,
+    minimum-necessary, access-controlled form.
+22. Verification request creation and commit are owned by deterministic
+    workflow and state controls after an Orchestrator proposal.
+23. The Workflow Controller enforces recommendation eligibility before
+    Decision Engine entry and mandatory-review routing after recommendation
+    without rewriting recommendation fields.
 
 
-## 18. Open Questions
+## 18. Resolved Architecture Decisions
+
+The following decisions were approved by the human architecture authority on
+2026-09-15.
+
+### RD-1 — Credit Data Classification
+
+Identity PII remains in the PII Vault. Sensitive Credit Data may enter
+CreditState only in structured, minimum-necessary, access-controlled form.
+Derived Risk Features may enter CreditState under protected ownership and
+minimum-context controls.
+
+### RD-2 — Verification Request Ownership
+
+The Policy Agent identifies WHAT evidence is required. The Orchestrator
+proposes verification-request creation. Deterministic workflow and state
+controls own validation, creation, and commit of the protected request. The
+Verification Agent determines HOW to execute only an approved committed
+request.
+
+### RD-3 — Mandatory Review Ordering
+
+The Workflow Controller checks evidence eligibility before Decision Engine
+entry. Ineligible cases route safely to human review without running the normal
+recommendation path. For eligible cases, the Decision Engine writes the
+recommendation. The Workflow Controller then enforces every applicable
+mandatory-review condition without rewriting the recommendation.
+
+## 19. Open Questions
 
 The following questions remain open for later design approval:
 
-### OQ-1 — Sensitive Credit Attributes
-
-Which credit attributes should be classified as PII,
-sensitive personal information, or ordinary credit-risk features?
-
-Examples requiring explicit classification include:
-
-- income;
-- employment information;
-- credit bureau information;
-- verified financial evidence.
-
-### OQ-2 — CreditState Physical Schema
+ ### OQ-2 — CreditState Physical Schema
 
 What exact fields and nested structures will implement the conceptual
 CreditState domains?
@@ -1149,7 +1224,7 @@ The exact baseline model and any challenger model will be selected
 during Phase 1.
 
 
-## 19. Phase 0 Architecture Exit Criteria
+## 20. Phase 0 Architecture Exit Criteria
 
 The architecture specification is ready to freeze when:
 
