@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 0 — Proposed Tool Design
+Phase 0 — Approved and Frozen
 
-Pending human approval.
+Approved and frozen on 2026-09-15.
 
 ## Authority
 
@@ -671,7 +671,7 @@ schemas, libraries, deployment topology, or physical storage.
 
 ## 17. Approval Gate
 
-Before this tool design becomes authoritative:
+The approved tool design must continue to satisfy:
 
 - confirm every V1 tool is necessary and sufficiently bounded;
 - confirm all caller permissions and side-effect preconditions;
@@ -683,5 +683,5 @@ Before this tool design becomes authoritative:
 - confirm no open architecture question was resolved implicitly;
 - record explicit human approval.
 
-Until approval is recorded, this document is a proposal and implementation
-must not treat its unresolved choices as frozen architecture.
+Approved architecture is frozen. Explicitly unresolved choices remain deferred
+until their relevant approved design phase.
