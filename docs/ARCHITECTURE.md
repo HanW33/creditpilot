@@ -105,8 +105,8 @@ permissions, retries, and loop-limit enforcement are non-agent components.
 ```mermaid
 flowchart LR
     P[Policy Agent<br/>WHAT evidence is required]
-    O[Orchestrator Agent<br/>WHETHER verification is needed]
-    C[Workflow Controller<br/>whether transition and call are permitted]
+    O[Orchestrator Agent<br/>WHETHER verification is needed and proposes request]
+    C[Workflow and state controls<br/>validate create and commit request]
     V[Verification Agent<br/>HOW evidence is obtained]
     T[Approved tool<br/>returns raw evidence]
     S[Deterministic state control<br/>validates and commits]
@@ -116,8 +116,9 @@ flowchart LR
 ```
 
 No single agent owns the complete verification decision chain. The Verification
-Agent may interpret, structure, and propose updates but may not fabricate
-verified facts or bypass protected state controls.
+Agent acts only on an approved committed request and may interpret, structure,
+and propose updates but may not fabricate verified facts or bypass protected
+state controls.
 
 ## Decision Authority
 
@@ -137,9 +138,11 @@ flowchart LR
     H -- Yes --> ES --> A
 ```
 
-Only the Decision Engine writes `recommendation`, `decision_rule`, and
-`decision_reason`. Mandatory human-review conditions take precedence and
-cannot be bypassed.
+Before Decision Engine entry, the Workflow Controller checks whether committed
+evidence is eligible. Ineligible cases route safely to human review. For
+eligible cases, only the Decision Engine writes `recommendation`,
+`decision_rule`, and `decision_reason`. After recommendation, the Workflow
+Controller enforces mandatory review without rewriting the recommendation.
 
 ## Trust Boundaries
 
@@ -148,6 +151,12 @@ cannot be bypassed.
 Raw identity PII and token mappings remain in a protected PII Vault. The main
 workflow uses controlled references such as `application_id`, `case_id`, and
 opaque `customer_token`.
+
+Income, employment information, credit bureau information, and verified
+financial evidence are Sensitive Credit Data. They may enter CreditState only
+in structured, minimum-necessary, access-controlled form. Derived Risk Features
+may enter protected CreditState under explicit ownership and minimum-context
+controls.
 
 ### LLM boundary
 
@@ -237,6 +246,9 @@ auditing.
 
 ## Open Decisions
 
-Sensitive credit-attribute classification, synthetic thresholds, verification
-providers, the human-review interface, model selection, and other explicitly
-open items remain subject to human approval.
+Synthetic thresholds, verification providers, the human-review interface,
+model selection, and other explicitly open items remain subject to human
+approval.
+
+Credit data classification, verification-request ownership, and mandatory
+review ordering were approved on 2026-09-15.
