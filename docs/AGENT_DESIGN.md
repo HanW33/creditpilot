@@ -293,14 +293,15 @@ The Policy Agent must not:
 Determine HOW to obtain requested evidence using only approved verification
 tools.
 
-It acts only after policy and workflow logic identify a valid verification
-need.
+It acts only after the Policy Agent identifies the evidence requirement, the
+Orchestrator proposes request creation, and deterministic workflow and state
+controls validate, create, and commit the protected verification request.
 
 ### 9.2 Authorized Inputs
 
 The Verification Agent may receive:
 
-- verification request ID;
+- approved committed verification request ID;
 - application and case references;
 - opaque customer reference;
 - required-evidence finding;
@@ -337,7 +338,7 @@ VerificationAgentOutput
 
 Approved verification tools obtain and return raw evidence.
 
-The Verification Agent may:
+The Verification Agent may act only on an approved committed request. It may:
 
 - select an approved method;
 - interpret returned evidence;
@@ -495,8 +496,9 @@ The human-review interface remains unresolved under OQ-5.
 | Next investigation proposal | Orchestrator Agent |
 | Applicable policy interpretation | Policy Agent |
 | WHAT evidence is required | Policy Agent |
-| WHETHER verification is needed now | Orchestrator Agent |
-| HOW verification evidence is obtained | Verification Agent |
+| WHETHER verification is needed now and request creation is proposed | Orchestrator Agent |
+| Protected verification-request validation, creation, and commit | Deterministic workflow and state controls |
+| HOW approved verification evidence is obtained | Verification Agent |
 | Raw verification evidence retrieval | Approved verification tools |
 | Protected verification-state validation and commit | Deterministic workflow/state controls |
 | PD, risk band, and SHAP | Approved quantitative components |
@@ -577,7 +579,21 @@ Evaluate each agent for:
 Architecture-invariant violations are failures regardless of other output
 quality.
 
-## 17. Design Invariants
+## 17. Approved Critical Decisions
+
+The following architecture decisions were approved on 2026-09-15:
+
+- Identity PII remains in the PII Vault; Sensitive Credit Data may enter
+  CreditState only in structured, minimum-necessary, access-controlled form;
+  Derived Risk Features may enter protected state under explicit ownership.
+- The Orchestrator proposes verification-request creation; deterministic
+  workflow and state controls validate, create, and commit the request; the
+  Verification Agent acts only on an approved committed request.
+- The Workflow Controller checks evidence eligibility before Decision Engine
+  entry and enforces mandatory review after recommendation without rewriting
+  the recommendation.
+
+## 18. Design Invariants
 
 1. Exactly five LLM-enabled agents exist in V1.
 2. Agents reason and propose; deterministic controls protect state.
@@ -595,7 +611,7 @@ quality.
 14. Failures and limits remain explicit and safely routed.
 15. Material agent activity remains auditable.
 
-## 18. Decisions Not Made Here
+## 19. Decisions Not Made Here
 
 This document does not select:
 
@@ -603,7 +619,6 @@ This document does not select:
 - prompt framework;
 - orchestration framework;
 - physical agent runtime;
-- sensitive credit-attribute classification;
 - synthetic thresholds;
 - verification provider;
 - retry or loop counts;
@@ -612,7 +627,7 @@ This document does not select:
 
 These require separate approval.
 
-## 19. Review Gate
+## 20. Review Gate
 
 Before approval:
 
