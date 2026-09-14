@@ -528,6 +528,26 @@ The Orchestrator coordinates investigation and proposes the next action. It
 must not receive verification or action capabilities merely to perform those
 operations itself.
 
+### 10.1 Tool Permission Matrix
+
+| Tool | Classification | Authorized caller from current architecture | Explicitly not authorized |
+| --- | --- | --- | --- |
+| `get_application()` | READ | Authorized data or workflow component; exact caller remains pending approval | Unrestricted agent access |
+| `get_customer_profile()` | READ | Authorized data or workflow component using sanitized scope; exact caller remains pending approval | Ordinary direct PII Vault access |
+| `calculate_dti()` | COMPUTE | Approved deterministic feature component | LLM calculation or override |
+| `run_credit_risk_model()` | COMPUTE | Approved quantitative model component | Any LLM-enabled agent |
+| `explain_model()` | COMPUTE | Approved quantitative SHAP component | Any LLM-generated or modified SHAP result |
+| `search_credit_policy()` | READ | Policy Agent | Unrelated agents |
+| `verify_income()` | READ | Verification Agent after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
+| `verify_employment()` | READ | Verification Agent after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
+| `get_credit_report()` | READ | Verification Agent after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
+| `create_review_case()` | ACTION | Escalation Agent after deterministic workflow authorization | Unapproved callers and precondition bypass |
+| `send_notification()` | ACTION | Escalation Agent after deterministic workflow authorization | Unapproved callers and unsanitized arbitrary messages |
+
+The matrix records only authority already established by the architecture.
+Exact data-tool caller allocation is an open design question and must not be
+implemented silently.
+
 Data and model tool access must be granted only to the authorized component or
 workflow step that requires the capability. This document does not broaden any
 agent's role or grant unrestricted tool access.
