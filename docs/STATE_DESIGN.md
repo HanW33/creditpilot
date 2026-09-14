@@ -351,7 +351,31 @@ remains separately identifiable from ordinary workflow auditing. Logs and
 traces avoid unnecessary raw PII. References preserve relevant timestamps and
 versions.
 
-## 5. Protected Update Protocol
+## 5. State Ownership Matrix
+
+| State domain or field | Reads | Proposes or produces | Protected writer or commit authority |
+| --- | --- | --- | --- |
+| State metadata | Authorized components and agents | Deterministic state controls | Deterministic persistence and state-control components |
+| Identity references | Authorized components and agents | PII Governance and authorized ingestion | Deterministic PII-governance and ingestion components |
+| Reported application data | Authorized components and agents | Authorized ingestion | Deterministic ingestion and PII-governance components |
+| Validation state | Authorized components and agents | Deterministic validation | Deterministic validation components |
+| PD, risk band, SHAP, model metadata | Authorized components and agents | Approved quantitative components | Approved quantitative components |
+| Raw policy retrieval evidence | Policy Agent and authorized components | Approved policy retrieval capability | Controlled policy-state update path |
+| Structured policy findings | Authorized components and agents | Policy Agent | Policy Agent through deterministic validation and commit controls |
+| Raw verification evidence | Verification Agent and authorized components | Approved verification tools | Stored through the controlled verification evidence path |
+| Verification interpretation and proposed update | Authorized components | Verification Agent | Not a committed protected value until deterministic validation |
+| Committed verified values | Authorized components and agents | Verification Agent proposes from tool evidence | Deterministic workflow and state controls validate and commit |
+| Proposed next workflow action | Workflow Controller and authorized components | Orchestrator Agent | Orchestrator-owned proposal field through controlled update |
+| Workflow transitions and counters | Authorized components and agents | Workflow Controller | Workflow Controller |
+| Recommendation, decision rule, decision reason | Authorized components and agents | Decision Engine | Decision Engine exclusively |
+| Analyst-facing explanation | Authorized components and agents | Explanation Agent | Explanation Agent through controlled update |
+| Escalation fields | Authorized components and agents | Escalation Agent and controlled action tools | Escalation Agent and controlled tools through deterministic controls |
+| Audit references | Authorized audit and governance components | Material workflow participants | Controlled audit and persistence components |
+
+Read access remains subject to authorization, least privilege, PII controls,
+and minimum-context construction. A proposal does not grant commit authority.
+
+## 6. Protected Update Protocol
 
 Agents do not directly commit protected state updates.
 
@@ -385,7 +409,7 @@ This does not transfer field ownership to the Workflow Controller. The
 controller validates and enforces the update; the designated owner remains
 responsible for the protected field.
 
-## 6. Role-Specific Read Views
+## 7. Role-Specific Read Views
 
 Do not pass complete CreditState to every agent. Construct role-specific views
 from an allowlist and expose only authorized, minimum-necessary, sanitized
@@ -403,7 +427,7 @@ fields.
 
 These views do not permit bypassing tool, PII, state, or workflow controls.
 
-## 7. Recalculation After Evidence Changes
+## 8. Recalculation After Evidence Changes
 
 When verified evidence materially changes relevant inputs:
 
@@ -421,7 +445,7 @@ This design does not decide whether a feature uses a reported or verified
 value. That requires explicit deterministic feature logic consistent with the
 approved classification of sensitive credit attributes.
 
-## 8. Failure Representation
+## 9. Failure Representation
 
 Each domain that can fail preserves:
 
@@ -439,7 +463,7 @@ invalid agent output, tool failure, unresolved ambiguity, and exhausted limits
 route according to deterministic workflow rules and mandatory-review
 conditions.
 
-## 9. State Invariants
+## 10. State Invariants
 
 Every implementation must preserve these invariants:
 
@@ -462,7 +486,7 @@ Every implementation must preserve these invariants:
 13. LLM context remains allowlisted, sanitized, and minimum necessary.
 14. Human analysts retain authority wherever human review is required.
 
-## 10. Decisions Not Made Here
+## 11. Decisions Not Made Here
 
 This document proposes the CreditState logical schema for OQ-2. It does not
 resolve:
@@ -476,7 +500,7 @@ resolve:
 It also does not choose a physical storage technology, serialization format,
 schema framework, or deployment design.
 
-## 11. Approval Gate
+## 12. Approval Gate
 
 Before this state design becomes authoritative:
 
