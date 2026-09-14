@@ -246,7 +246,21 @@ Enforce deterministic:
 
 Reject invalid agent output. Do not allow uncontrolled recursive execution.
 
-## 14. Governance Invariants
+## 14. Secret Management
+
+Credentials, provider tokens, signing material, database credentials, and other
+secrets must not appear in source code, prompts, CreditState, synthetic demo
+data, logs, traces, notifications, or review packages.
+
+Only the component or typed capability that requires a secret may receive it,
+using least privilege and minimum scope. Agents and LLMs must not receive raw
+secrets. Secret access and use must remain separate from ordinary reasoning
+context and must be auditable where material.
+
+The concrete secret store, rotation process, credential lifetime, and
+deployment integration require later implementation approval.
+
+## 15. Governance Invariants
 
 1. CreditPilot uses no real customer PII or proprietary bank policy.
 2. Raw identity PII remains outside the main workflow and CreditState.
@@ -261,7 +275,7 @@ Reject invalid agent output. Do not allow uncontrolled recursive execution.
 11. Failures remain explicit and safely routed.
 12. Material activity and versions remain traceable.
 
-## 15. Decisions Not Made Here
+## 16. Decisions Not Made Here
 
 This document does not resolve:
 
@@ -278,7 +292,7 @@ This document does not resolve:
 
 These require explicit later design approval.
 
-## 16. Review Gate
+## 17. Review Gate
 
 Before approval:
 
