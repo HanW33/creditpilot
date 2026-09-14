@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 0 — Proposed State Design
+Phase 0 — Approved and Frozen
 
-Pending human approval.
+Approved and frozen on 2026-09-15.
 
 ## Authority
 
@@ -509,7 +509,7 @@ schema framework, or deployment design.
 
 ## 12. Approval Gate
 
-Before this state design becomes authoritative:
+The approved state design must continue to satisfy:
 
 - confirm that each proposed domain and field is necessary for V1;
 - confirm protected-field ownership and mutation paths;
@@ -519,5 +519,5 @@ Before this state design becomes authoritative:
 - confirm that no other architecture open question was resolved implicitly;
 - record explicit human approval.
 
-Until approval is recorded, this document is a proposal and implementation must
-not treat its unresolved choices as frozen architecture.
+Approved architecture is frozen. Explicitly unresolved choices remain deferred
+until their relevant approved design phase.
