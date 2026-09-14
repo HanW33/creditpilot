@@ -2,7 +2,9 @@
 
 ## Status
 
-Phase 0 architecture summary.
+Phase 0 approved and frozen architecture summary.
+
+Approved and frozen on 2026-09-15.
 
 This document is a readable overview of the approved CreditPilot V1
 architecture. `docs/ARCHITECTURE_SPEC_V1.md` is the canonical source of truth
@@ -247,8 +249,12 @@ auditing.
 ## Open Decisions
 
 Synthetic thresholds, verification providers, the human-review interface,
-model selection, and other explicitly open items remain subject to human
-approval.
+challenger model selection, and other explicitly open items remain subject to
+human approval.
+
+The approved Phase 1 baseline is scikit-learn Logistic Regression. Model
+evaluation includes ROC-AUC, PR-AUC, Precision, Recall, F1, KS, and
+Calibration; acceptance thresholds remain configurable and pending approval.
 
 Credit data classification, verification-request ownership, and mandatory
 review ordering were approved on 2026-09-15.
