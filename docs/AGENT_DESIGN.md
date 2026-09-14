@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 0 — Proposed Agent Design
+Phase 0 — Approved and Frozen
 
-Pending human review.
+Approved and frozen on 2026-09-15.
 
 ## Authority
 
@@ -629,7 +629,7 @@ These require separate approval.
 
 ## 20. Review Gate
 
-Before approval:
+The approved document must continue to satisfy:
 
 - confirm all five roles, inputs, outputs, permissions, and prohibitions;
 - confirm the WHAT / WHETHER / HOW verification boundary;
