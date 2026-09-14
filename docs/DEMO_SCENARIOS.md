@@ -46,6 +46,19 @@ No scenario authorizes a real lending decision.
 
 ## 3. Scenario 1 — Straightforward Low-Risk Case
 
+### Scenario 1 Contract
+
+| Required item | Expected definition |
+| --- | --- |
+| Starting data | A valid synthetic application with sufficient policy-required evidence and no configured mandatory-review condition. Exact values remain pending approval. |
+| Expected model state | Successful approved quantitative model run with traceable PD, risk band where applicable, SHAP, model version, timestamp, and input state version. |
+| Expected policy behaviour | Grounded synthetic policy finding with citations and no missing required evidence. |
+| Expected agent actions | Policy Agent interprets policy; Orchestrator proposes the eligible next step; Explanation Agent explains the result. |
+| Expected tool calls | Approved data, deterministic calculation, model, SHAP, and policy retrieval capabilities only; no verification or escalation action call unless an explicit failure changes the path. |
+| Expected workflow path | The short path documented below, with deterministic transition approval. |
+| Expected final state | A Decision Engine recommendation with explanation and audit evidence; no mandatory human review when no review condition exists. The exact recommendation is not selected here. |
+| Must not occur | Unnecessary verification, invented policy or thresholds, agent-written model or recommendation fields, uncontrolled loops, or unnecessary PII exposure. |
+
 ### Purpose
 
 Demonstrate the shortest valid path when the application is valid, required
@@ -103,6 +116,19 @@ Application
 The exact synthetic inputs and decision thresholds require separate approval.
 
 ## 4. Scenario 2 — Verification Changes the Risk Assessment
+
+### Scenario 2 Contract
+
+| Required item | Expected definition |
+| --- | --- |
+| Starting data | Synthetic application with `reported_income = 150000` and missing verified income. |
+| Expected model state | An initial traceable model result followed by deterministic feature recalculation and a new model result after committed `verified_income = 98000`. |
+| Expected policy behaviour | Policy Agent grounds the requirement for verified income, then reruns evaluation when the relevant committed evidence changes. |
+| Expected agent actions | Orchestrator proposes verification; Verification Agent selects an approved method and interprets tool evidence; Explanation and Escalation Agents prepare their approved outputs after the recommendation. |
+| Expected tool calls | `verify_income()` plus approved data, calculation, model, SHAP, policy, and controlled escalation tools required by the path. |
+| Expected workflow path | Verification, deterministic commit, recalculation, model rerun, policy rerun, Decision Engine, mandatory review, and controlled escalation. |
+| Expected final state | Reported and verified incomes remain separate; the architecture-defined synthetic outcome is `MANUAL_REVIEW`; human review remains required. |
+| Must not occur | Overwriting reported income, fabricated verification, direct agent commit, skipped required reruns, agent-written recommendation, or bypassed human review. |
 
 ### Purpose
 
@@ -176,6 +202,19 @@ synthetic workflow outcome, not a real lending decision.
 - bypassing human review.
 
 ## 5. Scenario 3 — Policy or Evidence Conflict
+
+### Scenario 3 Contract
+
+| Required item | Expected definition |
+| --- | --- |
+| Starting data | A synthetic application whose retrieved policy evidence or case evidence contains a material conflict or remains unresolved. Exact values remain pending approval. |
+| Expected model state | Approved traceable quantitative result where model execution succeeds; explicit model failure state if the injected path tests model failure. |
+| Expected policy behaviour | Policy sources and interpretations remain separate; conflicts and missing evidence remain explicit; retrieval failure never becomes approval. |
+| Expected agent actions | Policy Agent records the conflict; Orchestrator proposes bounded investigation; Verification Agent acts only if approved evidence acquisition is required; Escalation Agent prepares controlled handoff. |
+| Expected tool calls | Only tools permitted by the chosen conflict path, with bounded retries; controlled review-case or notification actions after deterministic approval. |
+| Expected workflow path | Bounded investigation followed by safe routing when the conflict remains unresolved. |
+| Expected final state | `MANUAL_REVIEW`, preserved unresolved conflict, sanitized escalation evidence, and human-controlled review. |
+| Must not occur | Silent conflict resolution, invented evidence or policy, unlimited retries, arbitrary external action, agent-written recommendation, or unnecessary PII disclosure. |
 
 ### Purpose
 
