@@ -324,14 +324,19 @@ Constraints:
 The verification responsibility boundary is:
 
 - Policy Agent = WHAT evidence is required;
-- Orchestrator Agent = WHETHER verification is needed now;
-- Verification Agent = HOW evidence is obtained;
+- Orchestrator Agent = WHETHER verification is needed and proposes request
+  creation;
+- deterministic workflow and state controls = validate, create, and commit the
+  protected verification request;
+- Verification Agent = HOW evidence is obtained for an approved request;
 - approved verification tools = obtain and return raw evidence;
 - deterministic workflow and state controls = validate and commit protected
   verification-state updates.
 
-Verification providers remain unresolved under OQ-4. These contracts do not
-approve a real, public, sandbox, or mock provider.
+The Verification Agent may invoke these capabilities only for an approved
+committed verification request. Verification providers remain unresolved under
+OQ-4; these contracts do not approve a real, public, sandbox, or mock
+provider.
 
 ### 8.1 `verify_income()`
 
@@ -341,7 +346,7 @@ Obtain raw evidence relevant to an income-verification request.
 
 Logical input:
 
-- verification request ID;
+- approved committed verification request ID;
 - application or case reference;
 - opaque customer reference;
 - minimum authorized verification attributes;
@@ -349,7 +354,7 @@ Logical input:
 
 Logical output:
 
-- verification request ID;
+- approved committed verification request ID;
 - raw evidence reference;
 - returned income evidence, when available and authorized;
 - source or provider reference;
@@ -373,7 +378,7 @@ Obtain raw evidence relevant to an employment-verification request.
 
 Logical input:
 
-- verification request ID;
+- approved committed verification request ID;
 - application or case reference;
 - opaque customer reference;
 - minimum authorized verification attributes;
@@ -381,7 +386,7 @@ Logical input:
 
 Logical output:
 
-- verification request ID;
+- approved committed verification request ID;
 - raw evidence reference;
 - returned employment evidence, when available and authorized;
 - source or provider reference;
@@ -404,7 +409,7 @@ Obtain raw evidence relevant to an authorized credit-report request.
 
 Logical input:
 
-- verification request ID;
+- approved committed verification request ID;
 - application or case reference;
 - opaque customer reference;
 - minimum authorized request scope;
@@ -412,7 +417,7 @@ Logical input:
 
 Logical output:
 
-- verification request ID;
+- approved committed verification request ID;
 - raw evidence reference;
 - authorized credit-report evidence;
 - source or provider reference;
@@ -426,8 +431,9 @@ Constraints:
 - the Verification Agent may interpret and structure the result but may not
   bypass protected state controls;
 - deterministic controls validate and commit protected verification updates;
-- this design does not classify bureau data under OQ-1 or select a provider
-  under OQ-4.
+- bureau information is Sensitive Credit Data and must use structured,
+  minimum-necessary, access-controlled handling;
+- this design does not select a provider under OQ-4.
 
 ## 9. Action Tool Contracts
 
@@ -538,9 +544,9 @@ operations itself.
 | `run_credit_risk_model()` | COMPUTE | Approved quantitative model component | Any LLM-enabled agent |
 | `explain_model()` | COMPUTE | Approved quantitative SHAP component | Any LLM-generated or modified SHAP result |
 | `search_credit_policy()` | READ | Policy Agent | Unrelated agents |
-| `verify_income()` | READ | Verification Agent after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
-| `verify_employment()` | READ | Verification Agent after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
-| `get_credit_report()` | READ | Verification Agent after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
+| `verify_income()` | READ | Verification Agent for an approved committed request after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
+| `verify_employment()` | READ | Verification Agent for an approved committed request after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
+| `get_credit_report()` | READ | Verification Agent for an approved committed request after deterministic workflow authorization | Policy Agent, Orchestrator, and unrelated agents |
 | `create_review_case()` | ACTION | Escalation Agent after deterministic workflow authorization | Unapproved callers and precondition bypass |
 | `send_notification()` | ACTION | Escalation Agent after deterministic workflow authorization | Unapproved callers and unsanitized arbitrary messages |
 
@@ -655,7 +661,6 @@ protection, state transitions, retries, limits, or side-effect preconditions.
 
 This document does not resolve:
 
-- OQ-1: classification of sensitive credit attributes;
 - OQ-3: synthetic PD and workflow thresholds;
 - OQ-4: verification providers;
 - OQ-5: human-review interface;
