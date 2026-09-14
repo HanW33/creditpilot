@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 0 — Proposed Evaluation Design
+Phase 0 — Approved and Frozen
 
-Pending human review.
+Approved and frozen on 2026-09-15.
 
 ## Authority
 
@@ -285,7 +285,7 @@ This document does not select:
 
 ## 17. Review Gate
 
-Before approval:
+The approved document must continue to satisfy:
 
 - confirm evaluation coverage for every architecture layer;
 - confirm all three Golden Demo scenarios;
