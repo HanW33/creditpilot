@@ -96,6 +96,9 @@ Evaluate the complete boundary:
 - Verification Agent determines HOW to obtain it;
 - approved tools obtain and return raw evidence;
 - the Verification Agent interprets, structures, and proposes updates;
+- deterministic controls validate, create, and commit the protected
+  verification request;
+- the Verification Agent acts only on an approved committed request;
 - deterministic controls validate and commit protected verification state.
 
 Verify that reported and verified values remain separate, raw evidence is not
@@ -156,17 +159,22 @@ Verify that:
   raw PII;
 - PII-access audit records remain separately identifiable.
 
-Sensitive credit-attribute classification remains unresolved until OQ-1 is
-approved.
+Identity PII must remain in the PII Vault. Evaluation must verify that
+Sensitive Credit Data enters CreditState only in structured, minimum-necessary,
+access-controlled form and that Derived Risk Features retain protected
+ownership and minimum-context controls.
 
 ## 10. Decision and Explanation Evaluation
 
 Verify that:
 
-- the Decision Engine uses approved committed evidence;
+- the Workflow Controller blocks Decision Engine entry for ineligible evidence
+  and routes those cases safely to human review;
+- the Decision Engine uses eligible approved committed evidence;
 - recommendation, decision rule, and reason are deterministic and traceable;
 - agents cannot modify recommendation fields;
-- mandatory-review overrides take precedence;
+- after recommendation, the Workflow Controller enforces mandatory-review
+  conditions without rewriting the recommendation;
 - the Explanation Agent accurately reflects model, SHAP, policy,
   verification, and recommendation evidence;
 - explanations do not add unsupported facts or policy.
@@ -272,7 +280,6 @@ This document does not select:
 - agent-quality scoring thresholds;
 - latency or cost targets;
 - verification provider;
-- sensitive-attribute classification;
 - human-review interface;
 - baseline or challenger model.
 
