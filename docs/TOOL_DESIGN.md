@@ -46,13 +46,26 @@ commit.
 
 CreditPilot V1 uses these conceptual tool categories:
 
-| Category | Tools | Purpose |
-| --- | --- | --- |
-| Data | `get_application()`, `get_customer_profile()` | Retrieve authorized, sanitized case data. |
-| Model | `calculate_dti()`, `run_credit_risk_model()`, `explain_model()` | Perform deterministic calculations, quantitative prediction, and SHAP computation. |
-| Policy | `search_credit_policy()` | Retrieve traceable synthetic policy evidence. |
-| Verification | `verify_income()`, `verify_employment()`, `get_credit_report()` | Obtain raw external verification evidence. |
-| Action | `create_review_case()`, `send_notification()` | Perform controlled external escalation actions. |
+| Classification | Category | Tools | Purpose |
+| --- | --- | --- | --- |
+| READ | Data | `get_application()`, `get_customer_profile()` | Retrieve authorized, sanitized case data. |
+| COMPUTE | Model | `calculate_dti()`, `run_credit_risk_model()`, `explain_model()` | Perform deterministic calculations, quantitative prediction, and SHAP computation. |
+| READ | Policy | `search_credit_policy()` | Retrieve traceable synthetic policy evidence. |
+| READ | Verification | `verify_income()`, `verify_employment()`, `get_credit_report()` | Obtain raw external verification evidence without committing protected state. |
+| ACTION | Action | `create_review_case()`, `send_notification()` | Perform controlled external escalation actions. |
+
+
+
+Classification means:
+
+- READ retrieves authorized data or evidence and has no external mutation side
+  effect in the CreditPilot workflow;
+- COMPUTE derives deterministic or quantitative results without performing an
+  external business action;
+- ACTION changes an external system or sends an external communication.
+
+A READ or COMPUTE result may still feed a protected state proposal, but the
+tool does not gain direct protected-state commit authority.
 
 These tools are approved conceptual capabilities, not approval of a specific
 vendor, provider, API, library, or implementation.
