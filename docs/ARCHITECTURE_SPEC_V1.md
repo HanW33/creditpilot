@@ -2,7 +2,9 @@
 
 ## Status
 
-Phase 0 — Architecture Definition
+Phase 0 — Approved and Frozen
+
+Approved and frozen on 2026-09-15.
 
 ## Architecture Authority
 
@@ -1190,6 +1192,17 @@ recommendation path. For eligible cases, the Decision Engine writes the
 recommendation. The Workflow Controller then enforces every applicable
 mandatory-review condition without rewriting the recommendation.
 
+### RD-4 — Baseline Quantitative Model
+
+The Phase 1 baseline quantitative model is Logistic Regression implemented with
+scikit-learn. It is selected for interpretability and as the simplest approved
+starting point. Challenger model selection remains a later decision and must
+not replace the baseline without evaluation and approval.
+
+Phase 1 model evaluation includes ROC-AUC, PR-AUC, Precision, Recall, F1, KS,
+and Calibration. Metric acceptance thresholds remain a separate configurable
+decision.
+
 ## 19. Open Questions
 
 The following questions remain open for later design approval:
@@ -1215,14 +1228,6 @@ will use public or sandbox APIs?
 ### OQ-5 — Human Review Interface
 
 How will the V1 human analyst review and record an outcome?
-
-### OQ-6 — Model Choice
-
-The baseline should remain interpretable.
-
-The exact baseline model and any challenger model will be selected
-during Phase 1.
-
 
 ## 20. Phase 0 Architecture Exit Criteria
 
