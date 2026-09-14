@@ -11,8 +11,9 @@ Pending human review.
 This document derives from `docs/ARCHITECTURE_SPEC_V1.md` and applies its
 security, privacy, state-protection, audit, and human-authority requirements.
 
-The architecture specification remains authoritative. This document does not
-resolve the classification of sensitive credit attributes in OQ-1.
+The architecture specification remains authoritative. Credit data
+classification, verification-request ownership, and mandatory-review ordering
+were approved on 2026-09-15.
 
 ## 1. Security Objectives
 
@@ -57,13 +58,21 @@ Agents must not directly access the PII Vault. Access must:
 - be independently audited;
 - remain unavailable to ordinary agent reasoning.
 
-### 2.3 Sensitive Credit Attributes
+### 2.3 Credit Data Classification
 
-The classification of income, employment information, credit bureau
-information, and verified financial evidence remains open under OQ-1.
+CreditPilot V1 uses three information classes:
 
-Until approved classification exists, implementations must not silently label,
-route, expose, or persist these attributes based on an invented classification.
+- Identity PII includes raw name, email, address, identity identifiers, and
+  token mappings and remains in the protected PII Vault.
+- Sensitive Credit Data includes income, employment information, credit bureau
+  information, and verified financial evidence and may enter CreditState only
+  in structured, minimum-necessary, access-controlled form.
+- Derived Risk Features include DTI, approved derived features, PD, risk band,
+  and SHAP and may enter protected CreditState under explicit ownership and
+  minimum-context controls.
+
+Raw identity documents and unnecessary identity PII must not enter CreditState
+or ordinary agent and LLM context.
 
 ## 3. Deterministic PII Governance Layer
 
@@ -170,6 +179,10 @@ when material.
 
 Reported and verified information must remain separate and traceable.
 
+The Orchestrator proposes verification-request creation. Deterministic workflow
+and state controls validate, create, and commit the protected request. The
+Verification Agent may act only on an approved committed request.
+
 Approved verification tools obtain and return raw evidence. The Verification
 Agent may interpret and structure evidence and propose updates, but it must not
 fabricate verified facts or bypass protected state controls.
@@ -200,8 +213,12 @@ LLM-enabled agents may not override these fields.
 
 ## 11. Human Authority
 
-Human review is a protected workflow state. Mandatory human review cannot be
-bypassed by an agent.
+Human review is a protected workflow state. Before Decision Engine entry, the
+Workflow Controller routes ineligible mandatory-review cases safely. For
+eligible cases, the Decision Engine writes the recommendation, after which the
+Workflow Controller enforces every applicable mandatory-review condition
+without rewriting that recommendation. Human review cannot be bypassed by an
+agent or recommendation.
 
 The Escalation Agent may prepare a sanitized review package and request
 approved external actions. It must not make the human decision.
@@ -279,7 +296,6 @@ deployment integration require later implementation approval.
 
 This document does not resolve:
 
-- sensitive credit-attribute classification;
 - physical security or deployment architecture;
 - authentication implementation;
 - concrete authorization model;
