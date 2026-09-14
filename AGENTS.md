@@ -200,3 +200,75 @@ The architecture specification intentionally leaves these matters open:
 
 Do not silently decide or encode answers to these questions. Any resolution
 requires the later design approval identified in the architecture specification.
+
+## Architecture Change Process
+
+After Phase 0 human approval, the architecture is frozen. Do not silently
+change agent responsibilities, state ownership, tool contracts, decision
+authority, human-review rules, safety boundaries, or major workflow semantics.
+
+If implementation requires a material change, report:
+
+- the current architecture rule;
+- the implementation problem;
+- the proposed change and reason;
+- affected components;
+- risks;
+- whether human approval is required.
+
+Do not implement the material change before explicit human approval.
+
+## Future Task Workflow
+
+Future Codex tasks should normally:
+
+1. read this file and the relevant architecture documents;
+2. propose an implementation plan;
+3. identify assumptions, conflicts, and unresolved risks;
+4. implement only approved scope;
+5. run relevant tests and evaluations;
+6. review the diff;
+7. report results and remaining risks.
+
+Follow this development sequence:
+
+```text
+Canonical Architecture
+→ AGENTS.md
+→ Relevant Module Specification
+→ Task Plan
+→ Implement
+→ Test
+→ Evaluate
+→ Self Review
+→ Report
+```
+
+## Testing Expectations
+
+For implemented modules:
+
+- add relevant unit tests;
+- add integration tests where applicable;
+- test failure paths and permission rejection;
+- verify that protected state cannot be mutated by unauthorized agents or
+  components;
+- run applicable lint and type checks;
+- exercise relevant Golden Demo and evaluation paths when their dependencies
+  exist.
+
+Testing must not use real customer PII or proprietary bank policy.
+
+## Definition of Done
+
+A future module is complete only when:
+
+- implementation matches the canonical architecture and relevant design;
+- typed interfaces and ownership boundaries are respected;
+- relevant unit tests pass;
+- integration tests pass where applicable;
+- failure and unauthorized-action paths are tested;
+- unauthorized protected-state mutation is absent;
+- applicable lint and type checks pass;
+- the diff has been reviewed;
+- architectural assumptions and unresolved risks are reported.
