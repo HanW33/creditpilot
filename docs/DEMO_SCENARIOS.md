@@ -2,9 +2,9 @@
 
 ## Status
 
-Phase 0 — Proposed Demo Scenario Definition
+Phase 0 — Approved and Frozen
 
-Pending human review.
+Approved and frozen on 2026-09-15.
 
 ## Authority
 
