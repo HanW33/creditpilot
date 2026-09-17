@@ -2,9 +2,16 @@
 
 ## Status
 
-Phase 1 — In Progress
+Phase 1 — Complete
 
 Started on 2026-09-15.
+Completed on 2026-09-18.
+
+The reproducible baseline, evaluation report, SHAP attribution, schema guards,
+and automated tests satisfy the initial baseline definition of done. The
+reported metrics describe a synthetic demonstration baseline only and are not
+evidence of production lending performance. Metric acceptance thresholds,
+risk bands, and any challenger model remain unapproved future decisions.
 
 ## Authority and Scope
 

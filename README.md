@@ -90,8 +90,9 @@ Repository-level instructions for future Codex work are in
 
 Phase 0 documentation is approved and frozen as of 2026-09-15.
 
-Current phase: Phase 1 - synthetic dataset and quantitative credit-risk model.
-The approved baseline is scikit-learn Logistic Regression.
+Phase 1 is complete. The current phase is Phase 2 - typed schemas and protected
+CreditState controls. The approved quantitative baseline remains scikit-learn
+Logistic Regression.
 
 ## Phase 1 Baseline
 
