@@ -279,15 +279,15 @@ class StateUpdateProposal:
         )
 
 
-def _reject_identity_pii(value: Any, path: str = "CreditState") -> None:
+def validate_no_identity_pii(value: Any, path: str = "CreditState") -> None:
     if isinstance(value, Mapping):
         for key, child in value.items():
             if key.lower() in IDENTITY_PII_KEYS:
                 raise ValueError(f"raw identity PII is prohibited at {path}.{key}")
-            _reject_identity_pii(child, f"{path}.{key}")
+            validate_no_identity_pii(child, f"{path}.{key}")
     elif isinstance(value, (list, tuple)):
         for index, child in enumerate(value):
-            _reject_identity_pii(child, f"{path}[{index}]")
+            validate_no_identity_pii(child, f"{path}[{index}]")
 
 
 def create_credit_state(
@@ -306,8 +306,8 @@ def create_credit_state(
         raise ValueError(
             "application_id, customer_token, and source_reference are required"
         )
-    _reject_identity_pii(reported_values, "application_data.reported_values")
-    _reject_identity_pii(
+    validate_no_identity_pii(reported_values, "application_data.reported_values")
+    validate_no_identity_pii(
         sanitized_attributes, "application_data.sanitized_attributes"
     )
     timestamp = now or utc_now()

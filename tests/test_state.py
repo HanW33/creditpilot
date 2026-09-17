@@ -136,3 +136,38 @@ def test_verified_value_requires_successful_tool_evidence() -> None:
 
     with pytest.raises(StateUpdateRejected, match="successful tool evidence"):
         controller.commit_verified_values(state, proposal, interpretation)
+
+
+def test_verified_value_rejects_raw_identity_pii() -> None:
+    controller = ProtectedStateController()
+    state = controller.commit_verification_request(_state(), _request_proposal())
+    state = controller.record_verification_tool_result(
+        state,
+        VerificationToolResult(
+            result_id="identity-result-1",
+            request_id="verify-income-1",
+            tool_name="mock_verify_income",
+            raw_evidence_reference="evidence://identity-result-1",
+            status="success",
+            returned_at=NOW,
+        ),
+    )
+    interpretation = VerificationInterpretation(
+        interpretation_id="interpretation-identity-1",
+        result_id="identity-result-1",
+        structured_evidence={"email": "not-allowed"},
+        proposed_state_update={"email": "not-allowed"},
+        created_at=NOW,
+    )
+    proposal = StateUpdateProposal(
+        proposal_id="proposal-identity-1",
+        target_domain="verification_state.verified_values",
+        proposed_changes={"email": "not-allowed"},
+        basis_references=("identity-result-1",),
+        proposed_by="verification_agent",
+        expected_state_version=state.state_metadata.state_version,
+        proposed_at=NOW,
+    )
+
+    with pytest.raises(StateUpdateRejected, match="raw identity PII"):
+        controller.commit_verified_values(state, proposal, interpretation)

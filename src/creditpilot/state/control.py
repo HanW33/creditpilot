@@ -6,12 +6,17 @@ from dataclasses import replace
 
 from creditpilot.state.schemas import (
     CreditState,
+    PolicyEvidence,
+    QuantitativeModelState,
+    RecommendationState,
     StateMetadata,
     StateUpdateProposal,
+    ValidationState,
     VerificationInterpretation,
     VerificationRequest,
     VerificationToolResult,
     utc_now,
+    validate_no_identity_pii,
 )
 
 
@@ -33,6 +38,181 @@ class ProtectedStateController:
             state.state_metadata,
             state_version=state.state_metadata.state_version + 1,
             updated_at=utc_now(),
+        )
+
+    @staticmethod
+    def _require_writer(actual: str, expected: str, domain: str) -> None:
+        if actual != expected:
+            raise StateUpdateRejected(f"only {expected} may write {domain}")
+
+    def commit_validation_result(
+        self,
+        state: CreditState,
+        result: ValidationState,
+        *,
+        written_by: str,
+        expected_state_version: int,
+    ) -> CreditState:
+        """Commit output owned by the deterministic validation component."""
+
+        self._require_writer(written_by, "deterministic_validation", "validation_state")
+        if expected_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected("stale state update")
+        if result.status == "success" and result.failure is not None:
+            raise StateUpdateRejected("successful validation cannot contain a failure")
+        if result.status == "failure" and result.failure is None:
+            raise StateUpdateRejected("failed validation requires a failure record")
+        if result.validated_at is None or not result.validator_version:
+            raise StateUpdateRejected("validation provenance is incomplete")
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            validation_state=result,
+        )
+
+    def commit_quantitative_model_result(
+        self,
+        state: CreditState,
+        result: QuantitativeModelState,
+        *,
+        written_by: str,
+        expected_state_version: int,
+    ) -> CreditState:
+        """Commit PD and SHAP output owned by an approved quantitative component."""
+
+        self._require_writer(
+            written_by, "quantitative_model", "quantitative_model_state"
+        )
+        if expected_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected("stale state update")
+        if result.input_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected(
+                "model output was not produced from current state"
+            )
+        if result.status == "success":
+            if result.failure is not None:
+                raise StateUpdateRejected(
+                    "successful model output cannot contain failure"
+                )
+            if result.pd_score is None or not 0 <= result.pd_score <= 1:
+                raise StateUpdateRejected("successful model output requires valid PD")
+            if not result.model_version or result.model_timestamp is None:
+                raise StateUpdateRejected("model provenance is incomplete")
+        elif result.status == "failure":
+            if result.failure is None:
+                raise StateUpdateRejected("failed model output requires failure record")
+            if result.pd_score is not None or result.shap_risk_factors:
+                raise StateUpdateRejected(
+                    "failed model output cannot invent PD or SHAP"
+                )
+        else:
+            raise StateUpdateRejected("model status must be success or failure")
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            quantitative_model_state=result,
+        )
+
+    def record_policy_evidence(
+        self,
+        state: CreditState,
+        evidence: PolicyEvidence,
+        *,
+        written_by: str,
+        expected_state_version: int,
+    ) -> CreditState:
+        """Record traceable raw evidence from the approved retrieval capability."""
+
+        self._require_writer(
+            written_by, "policy_retrieval", "policy_state.retrieved_evidence"
+        )
+        if expected_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected("stale state update")
+        if not (
+            evidence.source_document
+            and evidence.section_or_chunk_reference
+            and evidence.policy_version
+        ):
+            raise StateUpdateRejected("policy evidence provenance is incomplete")
+        policy = replace(
+            state.policy_state,
+            retrieved_evidence=(*state.policy_state.retrieved_evidence, evidence),
+        )
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            policy_state=policy,
+        )
+
+    def commit_policy_findings(
+        self, state: CreditState, proposal: StateUpdateProposal
+    ) -> CreditState:
+        """Commit Policy Agent findings only when grounded in retrieved evidence."""
+
+        self._validate_version(state, proposal)
+        if proposal.target_domain != "policy_state.findings":
+            raise StateUpdateRejected("proposal targets the wrong state domain")
+        if proposal.proposed_by != "policy_agent":
+            raise StateUpdateRejected("only the Policy Agent may propose findings")
+        allowed = {"status", "findings", "required_evidence", "conflicts"}
+        if set(proposal.proposed_changes) - allowed:
+            raise StateUpdateRejected("policy proposal contains unsupported fields")
+        evidence_references = {
+            item.section_or_chunk_reference
+            for item in state.policy_state.retrieved_evidence
+        }
+        if proposal.proposed_changes.get("findings") and not set(
+            proposal.basis_references
+        ).issubset(evidence_references):
+            raise StateUpdateRejected("policy findings lack committed evidence")
+        if proposal.proposed_changes.get("findings") and not proposal.basis_references:
+            raise StateUpdateRejected("policy findings must cite committed evidence")
+        policy = replace(
+            state.policy_state,
+            status=str(proposal.proposed_changes.get("status", "complete")),
+            findings=tuple(proposal.proposed_changes.get("findings", ())),
+            required_evidence=tuple(
+                proposal.proposed_changes.get("required_evidence", ())
+            ),
+            conflicts=tuple(proposal.proposed_changes.get("conflicts", ())),
+            evaluated_at=proposal.proposed_at,
+        )
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            policy_state=policy,
+        )
+
+    def commit_recommendation(
+        self,
+        state: CreditState,
+        result: RecommendationState,
+        *,
+        written_by: str,
+        expected_state_version: int,
+    ) -> CreditState:
+        """Commit fields exclusively owned by the deterministic Decision Engine."""
+
+        self._require_writer(written_by, "decision_engine", "recommendation_state")
+        if expected_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected("stale state update")
+        if state.workflow_state.mandatory_human_review:
+            raise StateUpdateRejected("mandatory human review blocks recommendation")
+        if result.input_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected(
+                "recommendation was not produced from current committed state"
+            )
+        if not (
+            result.recommendation
+            and result.decision_rule
+            and result.decision_reason
+            and result.decided_at
+        ):
+            raise StateUpdateRejected("recommendation provenance is incomplete")
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            recommendation_state=result,
         )
 
     def commit_verification_request(
@@ -134,6 +314,12 @@ class ProtectedStateController:
             )
         if not proposal.proposed_changes:
             raise StateUpdateRejected("verified update must not be empty")
+        try:
+            validate_no_identity_pii(
+                proposal.proposed_changes, "verification_state.verified_values"
+            )
+        except ValueError as error:
+            raise StateUpdateRejected(str(error)) from error
 
         # Verified values are a separate domain and never replace reported values.
         verified_values = {

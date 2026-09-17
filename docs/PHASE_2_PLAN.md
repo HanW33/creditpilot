@@ -37,6 +37,12 @@ only through deterministic controls, and allows verified values to be
 committed only from an approved tool result through a Verification Agent
 proposal and deterministic validation.
 
+The next protected paths cover deterministic validation results, quantitative
+model outputs, grounded Policy Agent findings, and Decision Engine-owned
+recommendations. These controls enforce ownership and provenance only; they do
+not introduce policy thresholds or replace the later Workflow Controller
+eligibility design.
+
 ## Definition of Done
 
 Phase 2 is complete when:
