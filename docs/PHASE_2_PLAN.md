@@ -43,6 +43,11 @@ recommendations. These controls enforce ownership and provenance only; they do
 not introduce policy thresholds or replace the later Workflow Controller
 eligibility design.
 
+The workflow-control increment adds configured transition enforcement, bounded
+counters, mandatory-review enforcement, and the Orchestrator-owned next-action
+proposal field. The implementation accepts explicit transition and limit
+configuration; it does not select stages or numeric limits as architecture.
+
 ## Definition of Done
 
 Phase 2 is complete when:

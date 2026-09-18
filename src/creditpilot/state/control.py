@@ -247,10 +247,15 @@ class ProtectedStateController:
             state.verification_state,
             requests=(*state.verification_state.requests, request),
         )
+        workflow = replace(
+            state.workflow_state,
+            active_request_ids=(*state.workflow_state.active_request_ids, request_id),
+        )
         return replace(
             state,
             state_metadata=self._next_metadata(state),
             verification_state=verification,
+            workflow_state=workflow,
         )
 
     def record_verification_tool_result(
