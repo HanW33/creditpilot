@@ -90,10 +90,10 @@ Repository-level instructions for future Codex work are in
 
 Phase 0 documentation is approved and frozen as of 2026-09-15.
 
-Phases 1 and 2 are complete. CreditPilot now has the synthetic quantitative
-baseline plus typed schemas and protected in-memory CreditState controls. The
-next planned phase is Phase 3 - internal deterministic tools. The approved
-quantitative baseline remains scikit-learn Logistic Regression.
+Phases 1 and 2 are complete. Phase 3 - internal deterministic tools - is in
+progress. CreditPilot now has the synthetic quantitative baseline plus typed
+schemas and protected in-memory CreditState controls. The approved quantitative
+baseline remains scikit-learn Logistic Regression.
 
 ## Phase 1 Baseline
 
