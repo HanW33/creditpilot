@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import datetime
 from math import isfinite
 from typing import Any
 
-from creditpilot.state.schemas import CreditState, utc_now
+from creditpilot.state.schemas import CreditState, utc_now, validate_no_identity_pii
 from creditpilot.tools.contracts import (
     ToolFailure,
     ToolInvocation,
@@ -16,6 +17,7 @@ from creditpilot.tools.contracts import (
 
 GET_APPLICATION_VERSION = "get-application-v1"
 CALCULATE_DTI_VERSION = "calculate-dti-v1"
+GET_CUSTOMER_PROFILE_VERSION = "get-customer-profile-v1"
 
 
 def _validate_invocation(
@@ -189,4 +191,69 @@ def calculate_dti(
         started_at=started_at,
         completed_at=utc_now(),
         tool_version=CALCULATE_DTI_VERSION,
+    )
+
+
+def get_customer_profile(
+    invocation: ToolInvocation,
+    state: CreditState,
+    permissions: ToolPermissionPolicy,
+    *,
+    sanitized_profile: Mapping[str, Any],
+    source_reference: str,
+) -> ToolResult:
+    """Read an injected sanitized profile without accessing raw identity data."""
+
+    started_at = utc_now()
+    _validate_invocation(
+        invocation,
+        expected_tool="get_customer_profile",
+        state=state,
+        permissions=permissions,
+        required_scope="customer_profile:read_sanitized",
+    )
+    requested_fields = invocation.arguments.get("profile_fields", ())
+    if not isinstance(requested_fields, tuple) or not source_reference:
+        return _failure_result(
+            invocation,
+            code="invalid_arguments",
+            message="profile fields and source reference are required",
+            started_at=started_at,
+            tool_version=GET_CUSTOMER_PROFILE_VERSION,
+        )
+    try:
+        validate_no_identity_pii(sanitized_profile, "sanitized_customer_profile")
+    except ValueError:
+        return _failure_result(
+            invocation,
+            code="prohibited_profile_data",
+            message="sanitized profile contains prohibited identity data",
+            started_at=started_at,
+            tool_version=GET_CUSTOMER_PROFILE_VERSION,
+        )
+    if any(field not in sanitized_profile for field in requested_fields):
+        return _failure_result(
+            invocation,
+            code="requested_field_unavailable",
+            message="one or more requested profile fields are unavailable",
+            started_at=started_at,
+            tool_version=GET_CUSTOMER_PROFILE_VERSION,
+        )
+    return ToolResult(
+        invocation_id=invocation.invocation_id,
+        tool_name=invocation.tool_name,
+        status="success",
+        result={
+            "customer_token": state.identity_references.customer_token,
+            "profile_attributes": {
+                field: sanitized_profile[field] for field in requested_fields
+            },
+            "source_reference": source_reference,
+            "input_state_version": state.state_metadata.state_version,
+        },
+        evidence_references=(source_reference,),
+        failure=None,
+        started_at=started_at,
+        completed_at=utc_now(),
+        tool_version=GET_CUSTOMER_PROFILE_VERSION,
     )

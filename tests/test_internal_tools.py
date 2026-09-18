@@ -8,6 +8,7 @@ from creditpilot.tools import (
     ToolPermissionPolicy,
     calculate_dti,
     get_application,
+    get_customer_profile,
 )
 
 NOW = datetime(2026, 9, 18, tzinfo=UTC)
@@ -175,3 +176,74 @@ def test_tool_rejects_stale_state_version() -> None:
 
     with pytest.raises(ValueError, match="stale"):
         get_application(invocation, state, _permissions())
+
+
+def test_customer_profile_returns_only_sanitized_requested_fields() -> None:
+    state = _state()
+    permissions = ToolPermissionPolicy(
+        callers_by_tool={
+            "get_customer_profile": frozenset({"authorized_profile_component"})
+        }
+    )
+    invocation = ToolInvocation(
+        invocation_id="profile-1",
+        tool_name="get_customer_profile",
+        application_id="SYN-0000006",
+        case_id=None,
+        requested_by="authorized_profile_component",
+        purpose="Read minimum sanitized profile scope",
+        input_state_version=state.state_metadata.state_version,
+        authorized_scope=frozenset({"customer_profile:read_sanitized"}),
+        arguments={"profile_fields": ("customer_segment",)},
+        requested_at=NOW,
+    )
+
+    result = get_customer_profile(
+        invocation,
+        state,
+        permissions,
+        sanitized_profile={
+            "customer_segment": "synthetic_existing_customer",
+            "relationship_years": 3,
+        },
+        source_reference="sanitized-profile://6",
+    )
+
+    assert result.status == "success"
+    assert result.result["profile_attributes"] == {
+        "customer_segment": "synthetic_existing_customer"
+    }
+    assert "relationship_years" not in result.result["profile_attributes"]
+
+
+def test_customer_profile_rejects_identity_pii() -> None:
+    state = _state()
+    permissions = ToolPermissionPolicy(
+        callers_by_tool={
+            "get_customer_profile": frozenset({"authorized_profile_component"})
+        }
+    )
+    invocation = ToolInvocation(
+        invocation_id="profile-2",
+        tool_name="get_customer_profile",
+        application_id="SYN-0000006",
+        case_id=None,
+        requested_by="authorized_profile_component",
+        purpose="Reject prohibited identity profile data",
+        input_state_version=state.state_metadata.state_version,
+        authorized_scope=frozenset({"customer_profile:read_sanitized"}),
+        arguments={"profile_fields": ("email",)},
+        requested_at=NOW,
+    )
+
+    result = get_customer_profile(
+        invocation,
+        state,
+        permissions,
+        sanitized_profile={"email": "prohibited@example.invalid"},
+        source_reference="sanitized-profile://invalid",
+    )
+
+    assert result.status == "failure"
+    assert result.failure is not None
+    assert result.failure.code == "prohibited_profile_data"

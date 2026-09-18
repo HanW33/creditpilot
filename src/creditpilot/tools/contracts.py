@@ -65,6 +65,27 @@ class ToolResult:
 
 
 @dataclass(frozen=True, slots=True)
+class ToolAuditRecord:
+    audit_reference: str
+    application_id: str
+    case_id: str | None
+    invocation_id: str
+    tool_name: str
+    requested_by: str
+    purpose: str
+    authorized_scope: frozenset[str]
+    argument_keys: tuple[str, ...]
+    input_state_version: int
+    tool_version: str
+    started_at: datetime
+    completed_at: datetime
+    status: str
+    evidence_references: tuple[str, ...]
+    failure: ToolFailure | None
+    resulting_state_version: int
+
+
+@dataclass(frozen=True, slots=True)
 class ToolPermissionPolicy:
     """Caller allowlists remain explicit configuration, not hard-coded roles."""
 
