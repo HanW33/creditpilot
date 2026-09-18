@@ -9,6 +9,7 @@ from creditpilot.state.schemas import (
     CreditState,
     PolicyEvidence,
     QuantitativeModelState,
+    VerificationToolResult,
 )
 from creditpilot.tools.contracts import ToolAuditRecord, ToolInvocation, ToolResult
 
@@ -150,3 +151,54 @@ def commit_policy_retrieval_result(
             expected_state_version=committed.state_metadata.state_version,
         )
     return committed
+
+
+def record_verification_tool_result(
+    state: CreditState,
+    result: ToolResult,
+    controller: ProtectedStateController,
+) -> CreditState:
+    """Record only provenance for raw evidence returned by an approved tool."""
+
+    if result.tool_name not in {
+        "verify_income",
+        "verify_employment",
+        "get_credit_report",
+    }:
+        raise StateUpdateRejected("result is not from an approved verification tool")
+    if result.status != "success":
+        raise StateUpdateRejected("successful verification tool result is required")
+    request_id = result.result.get("request_id")
+    reference = result.result.get("raw_evidence_reference")
+    if not isinstance(request_id, str) or not isinstance(reference, str):
+        raise StateUpdateRejected("verification result provenance is incomplete")
+    if reference not in result.evidence_references:
+        raise StateUpdateRejected("verification result evidence reference is invalid")
+    expected_evidence = {
+        "verify_income": "verified_income",
+        "verify_employment": "verified_employment",
+        "get_credit_report": "credit_report",
+    }[result.tool_name]
+    request = next(
+        (
+            item
+            for item in state.verification_state.requests
+            if item.request_id == request_id
+        ),
+        None,
+    )
+    if request is None or request.status != "approved":
+        raise StateUpdateRejected("verification result has no approved request")
+    if request.evidence_required != expected_evidence:
+        raise StateUpdateRejected("verification tool does not match the request")
+    if result.result.get("evidence_type") != expected_evidence:
+        raise StateUpdateRejected("verification evidence type is inconsistent")
+    state_result = VerificationToolResult(
+        result_id=result.invocation_id,
+        request_id=request_id,
+        tool_name=result.tool_name,
+        raw_evidence_reference=reference,
+        status="success",
+        returned_at=result.completed_at,
+    )
+    return controller.record_verification_tool_result(state, state_result)
