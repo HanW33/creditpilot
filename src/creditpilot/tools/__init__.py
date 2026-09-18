@@ -7,6 +7,7 @@ from creditpilot.tools.contracts import (
     ToolResult,
 )
 from creditpilot.tools.internal import calculate_dti, get_application
+from creditpilot.tools.model_tools import explain_model, run_credit_risk_model
 
 __all__ = [
     "ToolFailure",
@@ -14,5 +15,7 @@ __all__ = [
     "ToolPermissionPolicy",
     "ToolResult",
     "calculate_dti",
+    "explain_model",
     "get_application",
+    "run_credit_risk_model",
 ]

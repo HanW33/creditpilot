@@ -25,3 +25,8 @@ SHAP implementation. This phase does not implement policy retrieval,
 verification providers, action tools, agents, thresholds, or external side
 effects. Exact data-tool callers remain configuration rather than an embedded
 architecture decision.
+
+The quantitative-tool increment wraps the approved Logistic Regression and
+SHAP components with version, permission, scope, state-version, application,
+and provenance checks. Model tools return PD and model-derived attribution but
+never recommendation fields and never commit protected CreditState directly.
