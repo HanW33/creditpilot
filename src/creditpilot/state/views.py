@@ -76,6 +76,7 @@ def build_role_state_view(state: CreditState, role: str) -> RoleStateView:
             "application_data": application,
             "validation_state": state.validation_state,
             "verified_values": state.verification_state.verified_values,
+            "policy_state": state.policy_state,
         },
         "orchestrator_agent": {
             "case_reference": case_reference,

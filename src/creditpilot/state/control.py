@@ -163,6 +163,11 @@ class ProtectedStateController:
             item.section_or_chunk_reference
             for item in state.policy_state.retrieved_evidence
         }
+        evidence_references.update(
+            f"policy://{item.source_document}/"
+            f"{item.section_or_chunk_reference}@{item.policy_version}"
+            for item in state.policy_state.retrieved_evidence
+        )
         if proposal.proposed_changes.get("findings") and not set(
             proposal.basis_references
         ).issubset(evidence_references):

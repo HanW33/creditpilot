@@ -1,0 +1,80 @@
+"""Reference-only CreditState linkage for sanitized agent audit records."""
+
+from __future__ import annotations
+
+from dataclasses import asdict
+
+from creditpilot.agents.contracts import AgentAuditRecord, AgentFailure, AgentInvocation
+from creditpilot.agents.policy_agent import PolicyAgentOutput
+from creditpilot.state import ProtectedStateController
+from creditpilot.state.schemas import CreditState, utc_now
+
+
+def record_policy_agent_audit(
+    state: CreditState,
+    invocation: AgentInvocation,
+    controller: ProtectedStateController,
+    *,
+    output: PolicyAgentOutput | None = None,
+    validation_error: str | None = None,
+) -> tuple[CreditState, AgentAuditRecord]:
+    """Record accepted/failure output or a sanitized validation rejection."""
+
+    if invocation.agent_role != "policy_agent":
+        raise ValueError("audit invocation is not for the Policy Agent")
+    if (output is None) == (validation_error is None):
+        raise ValueError("provide exactly one output or validation_error")
+    if output is not None and output.invocation_id != invocation.invocation_id:
+        raise ValueError("agent output does not match invocation")
+
+    audit_reference = f"agent-output://{invocation.invocation_id}"
+    committed = controller.append_audit_reference(
+        state,
+        category="agent_output_references",
+        reference=audit_reference,
+        written_by="audit_persistence",
+        expected_state_version=state.state_metadata.state_version,
+    )
+    if output is not None:
+        structured_output = asdict(output)
+        evidence_references = output.source_references
+        status = output.status
+        actions = output.proposed_actions
+        failure = output.failure
+        validation_result = "accepted"
+    else:
+        structured_output = {}
+        evidence_references = ()
+        status = "rejected"
+        actions = ()
+        failure = AgentFailure(
+            code="invalid_structured_output",
+            message=validation_error or "Policy Agent output rejected",
+        )
+        validation_result = "rejected"
+    record = AgentAuditRecord(
+        audit_reference=audit_reference,
+        invocation_id=invocation.invocation_id,
+        agent_role=invocation.agent_role,
+        application_id=invocation.application_id,
+        case_id=invocation.case_id,
+        purpose=invocation.purpose,
+        input_state_version=invocation.input_state_version,
+        authorized_context_reference=(
+            f"agent-context://{invocation.invocation_id}/"
+            f"state/{invocation.input_state_version}"
+        ),
+        authorized_context_keys=tuple(
+            sorted(invocation.authorized_state_view.data)
+        ),
+        permitted_tools=invocation.permitted_tools,
+        status=status,
+        evidence_references=evidence_references,
+        structured_output=structured_output,
+        proposed_actions=actions,
+        validation_result=validation_result,
+        failure=failure,
+        created_at=utc_now(),
+        resulting_state_version=committed.state_metadata.state_version,
+    )
+    return committed, record

@@ -98,7 +98,9 @@ baseline remains scikit-learn Logistic Regression.
 
 Phase 4 is complete with a fully synthetic, versioned policy corpus, stable
 section citations, local TF-IDF retrieval, permission-controlled policy search,
-and raw-evidence state commit. The next planned phase is Phase 5 - Policy Agent.
+and raw-evidence state commit. Phase 5 is also complete with a provider-neutral,
+grounded Policy Agent boundary and deterministic structured-output validation.
+The next planned phase is Phase 6 - verification tools and Verification Agent.
 
 ## Phase 1 Baseline
 
