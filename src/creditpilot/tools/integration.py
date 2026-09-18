@@ -5,7 +5,11 @@ from __future__ import annotations
 from datetime import datetime
 
 from creditpilot.state import ProtectedStateController, StateUpdateRejected
-from creditpilot.state.schemas import CreditState, QuantitativeModelState
+from creditpilot.state.schemas import (
+    CreditState,
+    PolicyEvidence,
+    QuantitativeModelState,
+)
 from creditpilot.tools.contracts import ToolAuditRecord, ToolInvocation, ToolResult
 
 
@@ -105,3 +109,44 @@ def record_tool_audit(
         resulting_state_version=committed.state_metadata.state_version,
     )
     return committed, record
+
+
+def commit_policy_retrieval_result(
+    state: CreditState,
+    result: ToolResult,
+    controller: ProtectedStateController,
+) -> CreditState:
+    """Commit raw retrieval evidence without adding Policy Agent interpretation."""
+
+    if result.tool_name != "search_credit_policy" or result.status != "success":
+        raise StateUpdateRejected("successful policy retrieval result is required")
+    if result.result.get("input_state_version") != state.state_metadata.state_version:
+        raise StateUpdateRejected("policy retrieval result is stale")
+    evidence_items = result.result.get("evidence")
+    if not isinstance(evidence_items, tuple) or not evidence_items:
+        raise StateUpdateRejected("policy retrieval contains no evidence")
+    committed = state
+    for item in evidence_items:
+        required = {
+            "source_document",
+            "section_or_chunk_reference",
+            "policy_version",
+            "retrieval_score",
+            "effective_date",
+        }
+        if not required.issubset(item):
+            raise StateUpdateRejected("policy evidence provenance is incomplete")
+        evidence = PolicyEvidence(
+            source_document=str(item["source_document"]),
+            section_or_chunk_reference=str(item["section_or_chunk_reference"]),
+            policy_version=str(item["policy_version"]),
+            retrieval_score=float(item["retrieval_score"]),
+            effective_date=str(item["effective_date"]),
+        )
+        committed = controller.record_policy_evidence(
+            committed,
+            evidence,
+            written_by="policy_retrieval",
+            expected_state_version=committed.state_metadata.state_version,
+        )
+    return committed

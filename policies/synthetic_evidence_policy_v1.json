@@ -1,0 +1,25 @@
+{
+  "policy_document_id": "synthetic-evidence-policy",
+  "title": "Synthetic Evidence Requirements Policy",
+  "policy_version": "synthetic-evidence-v1",
+  "effective_date": "2026-01-01",
+  "synthetic_policy_notice": "Fictional demonstration policy only. Not a real lender policy and not for lending decisions.",
+  "provenance": "CreditPilot repository-authored synthetic demonstration content",
+  "sections": [
+    {
+      "section_id": "income-evidence",
+      "title": "Income evidence",
+      "text": "When the applicable synthetic workflow requires income evidence, obtain verified income through an approved verification request and approved verification tool. Keep reported income and verified income separate and traceable. Missing income evidence is unresolved and is not evidence of policy satisfaction."
+    },
+    {
+      "section_id": "employment-evidence",
+      "title": "Employment evidence",
+      "text": "When the applicable synthetic workflow requires employment evidence, obtain it through an approved verification request. Keep reported employment information distinct from verified employment evidence and preserve the evidence source reference."
+    },
+    {
+      "section_id": "evidence-conflicts",
+      "title": "Evidence conflicts",
+      "text": "Conflicting reported and verified evidence must remain explicit. Do not overwrite the reported value, silently select one source, or represent the conflict as resolved. Unresolved material evidence conflicts require human review."
+    }
+  ]
+}

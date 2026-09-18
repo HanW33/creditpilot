@@ -2,24 +2,32 @@
 
 ## Status
 
-Phase 4 — Proposed, Human Approval Required
+Phase 4 — Complete
 
 Prepared on 2026-09-18 after completion of Phase 3.
+Approved by the human architecture authority on 2026-09-18.
+Completed on 2026-09-18.
 
 ## Authority and Approval Boundary
 
 `docs/ARCHITECTURE_SPEC_V1.md`, `docs/CREDIT_POLICY_DESIGN.md`,
 `docs/TOOL_DESIGN.md`, and `AGENTS.md` govern this phase.
 
-The frozen policy design explicitly leaves the synthetic policy rules,
-physical policy schema, chunking implementation, embedding model, vector
-store, and retrieval ranking threshold unselected. This plan proposes a
-minimal implementation profile; it does not approve or implement those
-choices. Human approval is required before code or policy content is added.
+The frozen policy design explicitly left the synthetic policy rules, physical
+policy schema, chunking implementation, embedding model, vector store, and
+retrieval ranking threshold unselected. The human architecture authority
+approved the minimal implementation profile in this document before code and
+policy content were added.
 
-## Proposed Phase 4 Scope
+The completed implementation provides two repository-owned synthetic policy
+documents, six stable section chunks, a local TF-IDF in-memory index, bounded
+cosine retrieval without an acceptance threshold, a permission-controlled
+search tool, raw-evidence state commit, and explicit failure handling. It does
+not include Policy Agent interpretation or real lending policy.
 
-Phase 4 would provide:
+## Phase 4 Scope
+
+Phase 4 provides:
 
 - versioned synthetic policy documents with an explicit demonstration notice;
 - stable section and chunk references;
@@ -31,11 +39,11 @@ Phase 4 would provide:
 - explicit empty, unavailable, invalid-source, and retrieval-failure results;
 - tests for citations, versions, PII rejection, permissions, and failure paths.
 
-Phase 4 would not implement the Policy Agent, verification providers, external
+Phase 4 does not implement the Policy Agent, verification providers, external
 actions, decision thresholds, recommendations, real bank policy, or an
 internet-connected policy source.
 
-## Proposed Implementation Decisions
+## Approved Implementation Decisions
 
 ### 1. Physical policy schema
 
@@ -106,9 +114,9 @@ policy and does not write `policy_state`. Existing deterministic state controls
 remain responsible for committing retrieved evidence. The future Policy Agent
 will interpret evidence in Phase 5.
 
-## Proposed Definition of Done
+## Definition of Done
 
-Phase 4 would be complete when:
+Phase 4 is complete because:
 
 - all approved implementation decisions above are represented in code and
   documentation;
@@ -123,5 +131,5 @@ Phase 4 would be complete when:
 
 ## Approval Requested
 
-Human approval is requested for the eight proposed implementation decisions
-above. Implementation must not begin until that approval is explicit.
+The eight proposed implementation decisions above were explicitly approved on
+2026-09-18. Implementation may proceed within this scope.

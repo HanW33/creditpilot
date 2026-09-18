@@ -1,0 +1,25 @@
+{
+  "policy_document_id": "synthetic-safe-routing-policy",
+  "title": "Synthetic Safe Routing Policy",
+  "policy_version": "synthetic-safe-routing-v1",
+  "effective_date": "2026-01-01",
+  "synthetic_policy_notice": "Fictional demonstration policy only. Not a real lender policy and not for lending decisions.",
+  "provenance": "CreditPilot repository-authored synthetic demonstration content",
+  "sections": [
+    {
+      "section_id": "model-failure",
+      "title": "Model failure",
+      "text": "A quantitative model failure must not produce an invented probability of default or SHAP result. Preserve the failure and route the unresolved case to human review under deterministic workflow control."
+    },
+    {
+      "section_id": "verification-failure",
+      "title": "Verification failure",
+      "text": "A failed or unavailable verification result must not create verified evidence. Preserve the failure, retain the reported value separately, and route unresolved required evidence to human review."
+    },
+    {
+      "section_id": "policy-conflict",
+      "title": "Policy conflict",
+      "text": "Conflicting or unavailable synthetic policy evidence must not be interpreted as approval. Preserve each source and version, expose the conflict, and route unresolved policy ambiguity to human review."
+    }
+  ]
+}

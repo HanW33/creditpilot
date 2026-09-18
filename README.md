@@ -96,9 +96,9 @@ feature, model, SHAP, audit, and state-commit tools. The next planned phase is
 Phase 4 - synthetic policy knowledge base and RAG. The approved quantitative
 baseline remains scikit-learn Logistic Regression.
 
-Phase 4 planning is prepared and awaiting human approval for the synthetic
-policy schema, content boundaries, chunking, vectorization, vector store,
-retrieval ranking, version handling, and state-ownership implementation.
+Phase 4 is complete with a fully synthetic, versioned policy corpus, stable
+section citations, local TF-IDF retrieval, permission-controlled policy search,
+and raw-evidence state commit. The next planned phase is Phase 5 - Policy Agent.
 
 ## Phase 1 Baseline
 
