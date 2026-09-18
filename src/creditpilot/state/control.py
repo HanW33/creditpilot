@@ -6,6 +6,8 @@ from dataclasses import replace
 
 from creditpilot.state.schemas import (
     CreditState,
+    ExplanationState,
+    GovernanceAuditReferences,
     PolicyEvidence,
     QuantitativeModelState,
     RecommendationState,
@@ -213,6 +215,112 @@ class ProtectedStateController:
             state,
             state_metadata=self._next_metadata(state),
             recommendation_state=result,
+        )
+
+    def commit_explanation(
+        self, state: CreditState, proposal: StateUpdateProposal
+    ) -> CreditState:
+        """Commit an analyst explanation without permitting evidence mutation."""
+
+        self._validate_version(state, proposal)
+        if proposal.target_domain != "explanation_state":
+            raise StateUpdateRejected("proposal targets the wrong state domain")
+        if proposal.proposed_by != "explanation_agent":
+            raise StateUpdateRejected(
+                "only the Explanation Agent may write explanation"
+            )
+        if set(proposal.proposed_changes) != {"explanation"}:
+            raise StateUpdateRejected("explanation proposal contains protected fields")
+        explanation = proposal.proposed_changes["explanation"]
+        if not isinstance(explanation, str) or not explanation.strip():
+            raise StateUpdateRejected("explanation must be non-empty")
+        if not proposal.basis_references:
+            raise StateUpdateRejected("explanation must cite committed evidence")
+        result = ExplanationState(
+            explanation=explanation,
+            input_state_version=state.state_metadata.state_version,
+            created_at=proposal.proposed_at,
+            created_by=proposal.proposed_by,
+        )
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            explanation_state=result,
+        )
+
+    def commit_escalation_package(
+        self, state: CreditState, proposal: StateUpdateProposal
+    ) -> CreditState:
+        """Commit a human-review package prepared by the Escalation Agent."""
+
+        self._validate_version(state, proposal)
+        if proposal.target_domain != "escalation_state":
+            raise StateUpdateRejected("proposal targets the wrong state domain")
+        if proposal.proposed_by != "escalation_agent":
+            raise StateUpdateRejected("only the Escalation Agent may prepare handoff")
+        if not state.workflow_state.mandatory_human_review:
+            raise StateUpdateRejected("escalation requires mandatory human review")
+        allowed = {
+            "status",
+            "reasons",
+            "review_package_reference",
+            "requested_actions",
+        }
+        if set(proposal.proposed_changes) - allowed:
+            raise StateUpdateRejected("escalation proposal contains protected fields")
+        reasons = tuple(proposal.proposed_changes.get("reasons", ()))
+        package_reference = proposal.proposed_changes.get(
+            "review_package_reference"
+        )
+        if not reasons or not package_reference:
+            raise StateUpdateRejected("escalation package provenance is incomplete")
+        escalation = replace(
+            state.escalation_state,
+            status=str(proposal.proposed_changes.get("status", "prepared")),
+            reasons=reasons,
+            review_package_reference=str(package_reference),
+            requested_actions=tuple(
+                proposal.proposed_changes.get("requested_actions", ())
+            ),
+            timestamps=(*state.escalation_state.timestamps, proposal.proposed_at),
+        )
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            escalation_state=escalation,
+        )
+
+    def append_audit_reference(
+        self,
+        state: CreditState,
+        *,
+        category: str,
+        reference: str,
+        written_by: str,
+        expected_state_version: int,
+    ) -> CreditState:
+        """Append a reference through controlled audit persistence."""
+
+        if expected_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected("stale state update")
+        categories = GovernanceAuditReferences.__dataclass_fields__
+        if category not in categories:
+            raise StateUpdateRejected("unknown audit reference category")
+        expected_writer = (
+            "pii_audit" if category == "pii_audit_references" else "audit_persistence"
+        )
+        self._require_writer(written_by, expected_writer, category)
+        if not reference:
+            raise StateUpdateRejected("audit reference must be non-empty")
+        current = getattr(state.governance_audit_references, category)
+        audit = replace(
+            state.governance_audit_references,
+            **{category: (*current, reference)},
+        )
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            governance_audit_references=audit,
         )
 
     def commit_verification_request(

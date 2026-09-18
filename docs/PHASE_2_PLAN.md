@@ -2,10 +2,18 @@
 
 ## Status
 
-Phase 2 — In Progress
+Phase 2 — Complete
 
 Started on 2026-09-18 after completion of the Phase 1 synthetic quantitative
 baseline.
+Completed on 2026-09-18.
+
+The typed state container, protected update paths, workflow-state controls,
+role-specific read views, and ownership tests satisfy the Phase 2 definition
+of done. The implementation provides in-memory immutable records and does not
+select a database, production identity system, deployment authorization
+mechanism, verification provider, external action provider, or human-review
+interface. Those remain governed by their later approved phases.
 
 ## Authority and Scope
 
@@ -47,6 +55,15 @@ The workflow-control increment adds configured transition enforcement, bounded
 counters, mandatory-review enforcement, and the Orchestrator-owned next-action
 proposal field. The implementation accepts explicit transition and limit
 configuration; it does not select stages or numeric limits as architecture.
+
+Role-specific read views use explicit allowlists for the five approved agents.
+They are immutable, deny unknown roles by default, exclude opaque customer
+tokens and PII-audit references, and omit unrelated state domains.
+
+Supporting ownership paths keep the Explanation Agent read-only relative to
+decision evidence, permit the Escalation Agent to prepare a handoff only after
+mandatory review is committed, and append ordinary and PII audit references
+through separately authorized deterministic writers.
 
 ## Definition of Done
 
