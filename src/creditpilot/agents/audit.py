@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict
+from collections.abc import Mapping
+from dataclasses import fields, is_dataclass
+from typing import Any
 
 from creditpilot.agents.contracts import AgentAuditRecord, AgentFailure, AgentInvocation
 from creditpilot.agents.orchestrator_agent import OrchestratorOutput
@@ -10,6 +12,21 @@ from creditpilot.agents.policy_agent import PolicyAgentOutput
 from creditpilot.agents.verification_agent import VerificationAgentOutput
 from creditpilot.state import ProtectedStateController
 from creditpilot.state.schemas import CreditState, utc_now
+
+
+def _to_audit_value(value: Any) -> Any:
+    """Convert frozen dataclass values without deepcopying mapping proxies."""
+
+    if is_dataclass(value) and not isinstance(value, type):
+        return {
+            item.name: _to_audit_value(getattr(value, item.name))
+            for item in fields(value)
+        }
+    if isinstance(value, Mapping):
+        return {key: _to_audit_value(child) for key, child in value.items()}
+    if isinstance(value, tuple):
+        return tuple(_to_audit_value(child) for child in value)
+    return value
 
 
 def record_orchestrator_agent_audit(
@@ -37,7 +54,7 @@ def record_orchestrator_agent_audit(
         expected_state_version=state.state_metadata.state_version,
     )
     if output is not None:
-        structured_output = asdict(output)
+        structured_output = _to_audit_value(output)
         evidence_references = output.evidence_references
         status = output.status
         actions = output.proposed_actions
@@ -107,7 +124,7 @@ def record_policy_agent_audit(
         expected_state_version=state.state_metadata.state_version,
     )
     if output is not None:
-        structured_output = asdict(output)
+        structured_output = _to_audit_value(output)
         evidence_references = output.source_references
         status = output.status
         actions = output.proposed_actions
@@ -177,7 +194,7 @@ def record_verification_agent_audit(
         expected_state_version=state.state_metadata.state_version,
     )
     if output is not None:
-        structured_output = asdict(output)
+        structured_output = _to_audit_value(output)
         evidence_references = output.tool_result_references
         status = output.status
         actions = output.proposed_actions
