@@ -202,3 +202,27 @@ def record_verification_tool_result(
         returned_at=result.completed_at,
     )
     return controller.record_verification_tool_result(state, state_result)
+
+
+def record_action_tool_result(
+    state: CreditState,
+    result: ToolResult,
+    controller: ProtectedStateController,
+) -> CreditState:
+    """Commit only a successful approved action reference to escalation state."""
+
+    if result.tool_name not in {"create_review_case", "send_notification"} or (
+        result.status != "success"
+    ):
+        raise StateUpdateRejected("successful approved action result is required")
+    if result.tool_name not in state.escalation_state.requested_actions:
+        raise StateUpdateRejected("action result was not requested by escalation")
+    reference = result.result.get("action_reference")
+    if not isinstance(reference, str) or reference not in result.evidence_references:
+        raise StateUpdateRejected("action result provenance is incomplete")
+    return controller.record_escalation_action_result(
+        state,
+        action_result_reference=reference,
+        written_by="action_tool",
+        expected_state_version=state.state_metadata.state_version,
+    )

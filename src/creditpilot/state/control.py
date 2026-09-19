@@ -279,14 +279,20 @@ class ProtectedStateController:
         )
         if not reasons or not package_reference:
             raise StateUpdateRejected("escalation package provenance is incomplete")
+        requested_actions = tuple(
+            proposal.proposed_changes.get("requested_actions", ())
+        )
+        if set(requested_actions) - {
+            "create_review_case",
+            "send_notification",
+        }:
+            raise StateUpdateRejected("escalation requests an unsupported action")
         escalation = replace(
             state.escalation_state,
             status=str(proposal.proposed_changes.get("status", "prepared")),
             reasons=reasons,
             review_package_reference=str(package_reference),
-            requested_actions=tuple(
-                proposal.proposed_changes.get("requested_actions", ())
-            ),
+            requested_actions=requested_actions,
             timestamps=(*state.escalation_state.timestamps, proposal.proposed_at),
         )
         return replace(
@@ -326,6 +332,43 @@ class ProtectedStateController:
             state,
             state_metadata=self._next_metadata(state),
             governance_audit_references=audit,
+        )
+
+    def record_escalation_action_result(
+        self,
+        state: CreditState,
+        *,
+        action_result_reference: str,
+        written_by: str,
+        expected_state_version: int,
+    ) -> CreditState:
+        """Record an approved action result without granting decision authority."""
+
+        self._require_writer(
+            written_by, "action_tool", "escalation_state.action_results"
+        )
+        if expected_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected("stale action result")
+        if not state.workflow_state.mandatory_human_review or (
+            state.escalation_state.status != "prepared"
+        ):
+            raise StateUpdateRejected("action result requires prepared escalation")
+        if not action_result_reference:
+            raise StateUpdateRejected("action result reference is required")
+        if action_result_reference in state.escalation_state.action_results:
+            return state
+        escalation = replace(
+            state.escalation_state,
+            action_results=(
+                *state.escalation_state.action_results,
+                action_result_reference,
+            ),
+            timestamps=(*state.escalation_state.timestamps, utc_now()),
+        )
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            escalation_state=escalation,
         )
 
     def commit_verification_request(
