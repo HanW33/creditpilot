@@ -7,10 +7,15 @@ from creditpilot.state.schemas import (
     create_credit_state,
 )
 from creditpilot.state.views import RoleStateView, build_role_state_view
-from creditpilot.state.workflow import WorkflowControlConfig, WorkflowController
+from creditpilot.state.workflow import (
+    DecisionEligibility,
+    WorkflowControlConfig,
+    WorkflowController,
+)
 
 __all__ = [
     "CreditState",
+    "DecisionEligibility",
     "ProtectedStateController",
     "RoleStateView",
     "StateUpdateProposal",
