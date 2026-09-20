@@ -1,0 +1,361 @@
+{
+  "config": {
+    "evaluation_id": "phase12-golden-demo-v1",
+    "data_version": "synthetic-golden-demo-v1",
+    "model_version": "logistic-regression-v1",
+    "policy_version": "synthetic-policy-v1",
+    "workflow_version": "phase12-workflow-v1",
+    "schema_version": "credit-state-v1",
+    "synthetic_notice": "Synthetic evaluation fixtures only; not lending policy."
+  },
+  "status": "pass",
+  "evaluated_at": "2026-09-20T00:34:02.060522+00:00",
+  "scenarios": [
+    {
+      "scenario_id": "golden-1-low-risk",
+      "status": "pass",
+      "checks": [
+        {
+          "check_id": "security.no_raw_identity_pii",
+          "layer": "security",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "no raw identity PII",
+          "actual": "absent",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "state.protected_ownership",
+          "layer": "deterministic_controls",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "protected writes use approved owners",
+          "actual": "enforced",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "evidence.not_fabricated",
+          "layer": "tools_and_evidence",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "no fabricated evidence",
+          "actual": "grounded",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "workflow.bounded",
+          "layer": "workflow",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "configured limits respected",
+          "actual": "respected",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "audit.present",
+          "layer": "end_to_end",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "traceable audit references",
+          "actual": "1",
+          "evidence_references": [
+            "audit://golden-1"
+          ],
+          "failure": null
+        },
+        {
+          "check_id": "policy.grounded",
+          "layer": "policy_rag",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "policy citations",
+          "actual": "1",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "verification.not_unnecessary",
+          "layer": "agents",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "no verification request",
+          "actual": "False",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "decision.owner",
+          "layer": "decision",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "Decision Engine recommendation",
+          "actual": "decision_engine:APPROVAL_RECOMMENDATION",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "review.not_required",
+          "layer": "workflow",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "no mandatory review",
+          "actual": "False",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "explanation.grounded",
+          "layer": "agents",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "grounded explanation",
+          "actual": "True",
+          "evidence_references": [],
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario_id": "golden-2-income-verification",
+      "status": "pass",
+      "checks": [
+        {
+          "check_id": "security.no_raw_identity_pii",
+          "layer": "security",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "no raw identity PII",
+          "actual": "absent",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "state.protected_ownership",
+          "layer": "deterministic_controls",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "protected writes use approved owners",
+          "actual": "enforced",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "evidence.not_fabricated",
+          "layer": "tools_and_evidence",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "no fabricated evidence",
+          "actual": "grounded",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "workflow.bounded",
+          "layer": "workflow",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "configured limits respected",
+          "actual": "respected",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "audit.present",
+          "layer": "end_to_end",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "traceable audit references",
+          "actual": "2",
+          "evidence_references": [
+            "audit://golden-2",
+            "verification://golden-2"
+          ],
+          "failure": null
+        },
+        {
+          "check_id": "verification.reported_preserved",
+          "layer": "state",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "reported_income=150000",
+          "actual": "150000",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "verification.verified_separate",
+          "layer": "state",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "separate verified_income=98000",
+          "actual": "98000",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "verification.raw_evidence",
+          "layer": "tools_and_evidence",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "tool-returned raw evidence",
+          "actual": "True",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "verification.controlled_commit",
+          "layer": "deterministic_controls",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "deterministic protected commit",
+          "actual": "True",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "rerun.model_and_policy",
+          "layer": "end_to_end",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "model and policy rerun",
+          "actual": "model=2,policy=2",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "decision.manual_review",
+          "layer": "decision",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "Decision Engine MANUAL_REVIEW",
+          "actual": "decision_engine:MANUAL_REVIEW",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "review.enforced",
+          "layer": "workflow",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "mandatory review and controlled escalation",
+          "actual": "review=True,escalation=True",
+          "evidence_references": [],
+          "failure": null
+        }
+      ]
+    },
+    {
+      "scenario_id": "golden-3-policy-conflict",
+      "status": "pass",
+      "checks": [
+        {
+          "check_id": "security.no_raw_identity_pii",
+          "layer": "security",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "no raw identity PII",
+          "actual": "absent",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "state.protected_ownership",
+          "layer": "deterministic_controls",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "protected writes use approved owners",
+          "actual": "enforced",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "evidence.not_fabricated",
+          "layer": "tools_and_evidence",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "no fabricated evidence",
+          "actual": "grounded",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "workflow.bounded",
+          "layer": "workflow",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "configured limits respected",
+          "actual": "respected",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "audit.present",
+          "layer": "end_to_end",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "traceable audit references",
+          "actual": "2",
+          "evidence_references": [
+            "audit://golden-3",
+            "escalation://golden-3"
+          ],
+          "failure": null
+        },
+        {
+          "check_id": "policy.conflict_preserved",
+          "layer": "policy_rag",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "explicit unresolved conflict",
+          "actual": "1",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "policy.cited",
+          "layer": "policy_rag",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "versioned policy citations",
+          "actual": "1",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "conflict.safe_route",
+          "layer": "workflow",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "mandatory human review without approval",
+          "actual": "review=True,recommendation=None",
+          "evidence_references": [],
+          "failure": null
+        },
+        {
+          "check_id": "escalation.controlled",
+          "layer": "agents",
+          "status": "pass",
+          "hard_invariant": true,
+          "expected": "controlled escalation",
+          "actual": "True",
+          "evidence_references": [],
+          "failure": null
+        }
+      ]
+    }
+  ],
+  "quantitative_metrics": {
+    "roc_auc": 0.6268136160714286,
+    "pr_auc": 0.20089356109566084,
+    "precision": 0.6666666666666666,
+    "recall": 0.019230769230769232,
+    "f1": 0.037383177570093455,
+    "ks": 0.23549107142857145,
+    "brier_score": 0.09084700590003843
+  },
+  "quantitative_acceptance_thresholds": "not_approved"
+}
