@@ -8,15 +8,19 @@ version = "0.1.0"
 description = "Synthetic credit-risk decision-support learning project"
 requires-python = ">=3.11"
 dependencies = [
+  "fastapi>=0.115",
   "joblib>=1.3",
+  "jinja2>=3.1",
   "numpy>=1.26",
   "pandas>=2.1",
   "scikit-learn>=1.4",
   "shap>=0.45",
+  "uvicorn>=0.30",
 ]
 
 [project.optional-dependencies]
 dev = [
+  "httpx>=0.27",
   "pytest>=8.0",
   "ruff>=0.6",
 ]
@@ -24,9 +28,13 @@ dev = [
 [project.scripts]
 creditpilot-train-baseline = "creditpilot.ml.cli:main"
 creditpilot-evaluate = "creditpilot.evaluation.cli:main"
+creditpilot-api = "creditpilot.interface.run:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"creditpilot.interface" = ["templates/*.html"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

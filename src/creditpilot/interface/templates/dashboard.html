@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CreditPilot — Analyst workspace</title>
+  <style>
+    :root { color-scheme: light; --ink:#16233a; --muted:#637083; --line:#dce3eb; --navy:#153d67; --blue:#eaf3fb; --amber:#fff4d6; }
+    * { box-sizing:border-box; }
+    body { margin:0; font:15px/1.5 system-ui,sans-serif; color:var(--ink); background:#f4f7fa; }
+    header { background:var(--navy); color:white; padding:28px max(24px,calc((100% - 1100px)/2)); }
+    header p { margin:4px 0 0; opacity:.82; }
+    main { max-width:1100px; margin:28px auto; padding:0 24px; }
+    .notice { background:var(--amber); border:1px solid #e8cf8f; padding:14px 16px; border-radius:9px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-top:20px; }
+    article { background:white; border:1px solid var(--line); border-radius:10px; padding:20px; }
+    a { color:#0c5b9d; font-weight:650; text-decoration:none; }
+    .status { display:inline-block; margin-top:12px; padding:4px 9px; border-radius:999px; background:var(--blue); }
+    .empty { color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header><h1>CreditPilot</h1><p>Evidence-first analyst workspace</p></header>
+  <main>
+    <p class="notice"><strong>Synthetic decision support only.</strong> This is not a real lending system and does not make autonomous lending decisions.</p>
+    <h2>Cases</h2>
+    <div class="grid">
+      {% for case in cases %}
+      <article>
+        <a href="/cases/{{ case.application_id }}">{{ case.application_id }}</a>
+        <p>State version {{ case.state_version }}</p>
+        <span class="status">{% if case.workflow.mandatory_human_review %}Human review required{% else %}No mandatory review{% endif %}</span>
+      </article>
+      {% else %}
+      <p class="empty">No synthetic cases have been created. Use the typed API to add one.</p>
+      {% endfor %}
+    </div>
+  </main>
+</body>
+</html>

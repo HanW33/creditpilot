@@ -396,6 +396,43 @@ class ProtectedStateController:
             escalation_state=escalation,
         )
 
+    def commit_human_review_outcome(
+        self,
+        state: CreditState,
+        *,
+        outcome_reference: str,
+        written_by: str,
+        expected_state_version: int,
+    ) -> CreditState:
+        """Attach an authorized human outcome without changing decision evidence."""
+
+        self._require_writer(
+            written_by,
+            "authorized_human_analyst",
+            "escalation_state.human_review_outcome_reference",
+        )
+        if expected_state_version != state.state_metadata.state_version:
+            raise StateUpdateRejected("stale human review outcome")
+        if not state.workflow_state.mandatory_human_review:
+            raise StateUpdateRejected("human outcome requires mandatory review")
+        if not outcome_reference.startswith("human-review://synthetic/"):
+            raise StateUpdateRejected("invalid human review outcome reference")
+        existing = state.escalation_state.human_review_outcome_reference
+        if existing is not None:
+            if existing == outcome_reference:
+                return state
+            raise StateUpdateRejected("human review outcome already recorded")
+        escalation = replace(
+            state.escalation_state,
+            human_review_outcome_reference=outcome_reference,
+            timestamps=(*state.escalation_state.timestamps, utc_now()),
+        )
+        return replace(
+            state,
+            state_metadata=self._next_metadata(state),
+            escalation_state=escalation,
+        )
+
     def commit_verification_request(
         self, state: CreditState, proposal: StateUpdateProposal
     ) -> CreditState:

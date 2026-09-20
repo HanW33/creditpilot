@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ case.application_id }} — CreditPilot</title>
+  <style>
+    :root { --ink:#16233a; --muted:#637083; --line:#dce3eb; --navy:#153d67; --amber:#fff4d6; }
+    * { box-sizing:border-box; } body { margin:0; font:15px/1.5 system-ui,sans-serif; color:var(--ink); background:#f4f7fa; }
+    header { background:var(--navy); color:white; padding:24px max(24px,calc((100% - 1100px)/2)); }
+    header a { color:white; } main { max-width:1100px; margin:24px auto; padding:0 24px; }
+    .notice { background:var(--amber); border:1px solid #e8cf8f; padding:12px 15px; border-radius:9px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; margin-top:18px; }
+    section { background:white; border:1px solid var(--line); border-radius:10px; padding:18px; overflow-wrap:anywhere; }
+    h2 { margin-top:0; font-size:18px; } dt { color:var(--muted); } dd { margin:0 0 10px; }
+    pre { white-space:pre-wrap; margin:0; font:13px/1.45 ui-monospace,monospace; }
+    label { display:block; margin-top:10px; font-weight:650; } input,select,textarea { width:100%; padding:9px; border:1px solid var(--line); border-radius:6px; font:inherit; }
+    button { margin-top:12px; border:0; border-radius:7px; padding:10px 14px; color:white; background:var(--navy); font-weight:700; cursor:pointer; }
+    #review-result { color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header><a href="/">← Cases</a><h1>{{ case.application_id }}</h1><div>State version {{ case.state_version }}</div></header>
+  <main>
+    <p class="notice"><strong>Synthetic decision support only.</strong> Human authority is retained wherever review is required.</p>
+    <div class="grid">
+      <section><h2>Workflow</h2><pre>{{ case.workflow | tojson(indent=2) }}</pre></section>
+      <section><h2>Reported evidence</h2><pre>{{ case.reported_values | tojson(indent=2) }}</pre></section>
+      <section><h2>Verified evidence</h2><pre>{{ case.verification | tojson(indent=2) }}</pre></section>
+      <section><h2>Model and SHAP</h2><pre>{{ case.model | tojson(indent=2) }}</pre></section>
+      <section><h2>Policy evidence</h2><pre>{{ case.policy | tojson(indent=2) }}</pre></section>
+      <section><h2>Recommendation</h2><pre>{{ case.recommendation | tojson(indent=2) }}</pre></section>
+      <section><h2>Explanation</h2><p>{{ case.explanation or "Not yet available" }}</p></section>
+      <section><h2>Escalation and review</h2><pre>{{ case.escalation | tojson(indent=2) }}</pre></section>
+      <section><h2>Audit references</h2><pre>{{ case.audit | tojson(indent=2) }}</pre></section>
+      {% if case.workflow.mandatory_human_review and not case.escalation.human_review_outcome_reference %}
+      <section>
+        <h2>Record authorized human review</h2>
+        <form id="review-form">
+          <label for="outcome">Outcome</label>
+          <select id="outcome"><option>ACKNOWLEDGED</option><option>RETURN_FOR_INFORMATION</option><option>CLOSED_AFTER_REVIEW</option></select>
+          <label for="reviewer">Opaque reviewer token</label><input id="reviewer" placeholder="analyst-token-..." required>
+          <label for="rationale">Sanitized rationale</label><textarea id="rationale" required></textarea>
+          <label for="key">Idempotency key</label><input id="key" required>
+          <button type="submit">Record review</button>
+        </form>
+        <p id="review-result"></p>
+      </section>
+      {% endif %}
+    </div>
+  </main>
+  {% if case.workflow.mandatory_human_review and not case.escalation.human_review_outcome_reference %}
+  <script>
+    document.getElementById("review-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const result = document.getElementById("review-result");
+      const response = await fetch("/api/cases/{{ case.application_id }}/human-review", {
+        method: "POST",
+        headers: {"Content-Type":"application/json", "X-Analyst-Role":"authorized_human_analyst"},
+        body: JSON.stringify({
+          outcome: document.getElementById("outcome").value,
+          reviewer_token: document.getElementById("reviewer").value,
+          rationale: document.getElementById("rationale").value,
+          idempotency_key: document.getElementById("key").value,
+          expected_state_version: {{ case.state_version }}
+        })
+      });
+      const body = await response.json();
+      if (response.ok) { result.textContent = `Recorded: ${body.review_reference}`; setTimeout(() => location.reload(), 500); }
+      else { result.textContent = `Not recorded: ${body.detail}`; }
+    });
+  </script>
+  {% endif %}
+</body>
+</html>
