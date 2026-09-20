@@ -18,12 +18,33 @@
     .status { display:inline-block; margin-top:12px; padding:4px 9px; border-radius:999px; background:var(--blue); }
     .empty { color:var(--muted); } button { border:0; border-radius:7px; padding:9px 13px; background:var(--navy); color:white; font-weight:700; cursor:pointer; }
     .trace { margin-top:12px; font-size:13px; color:var(--muted); } .pass { color:#176b42; font-weight:700; } .fail { color:#a12626; font-weight:700; }
+    form { background:white; border:1px solid var(--line); border-radius:10px; padding:20px; } .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
+    label { display:block; font-weight:650; } input,select { width:100%; margin-top:5px; padding:9px; border:1px solid var(--line); border-radius:6px; font:inherit; } .form-actions { margin-top:16px; display:flex; gap:12px; align-items:center; }
   </style>
 </head>
 <body>
   <header><h1>CreditPilot</h1><p>Evidence-first analyst workspace</p></header>
   <main>
     <p class="notice"><strong>Synthetic decision support only.</strong> This is not a real lending system and does not make autonomous lending decisions.</p>
+    <h2>Create a synthetic case</h2>
+    <p>Enter demo credit information only. Do not enter a name, email, address, phone number, or other real identity information.</p>
+    <form id="case-form">
+      <div class="form-grid">
+        <label>Application ID<input id="application-id" value="SYN-DEMO-001" required maxlength="80"></label>
+        <label>Annual income<input id="annual-income" type="number" value="150000" min="0" required></label>
+        <label>Monthly debt payment<input id="monthly-debt" type="number" value="2800" min="0" required></label>
+        <label>Requested amount<input id="requested-amount" type="number" value="25000" min="1" required></label>
+        <label>Loan term, months<input id="loan-term" type="number" value="36" min="1" required></label>
+        <label>Employment years<input id="employment-years" type="number" value="5" min="0" required></label>
+        <label>Credit utilization<input id="credit-utilization" type="number" value="0.42" min="0" max="1" step="0.01" required></label>
+        <label>Delinquency count<input id="delinquency-count" type="number" value="0" min="0" required></label>
+        <label>Recent inquiries<input id="recent-inquiries" type="number" value="1" min="0" required></label>
+        <label>Credit history, years<input id="credit-history" type="number" value="8" min="0" required></label>
+        <label>Employment type<select id="employment-type"><option>salaried</option><option>self_employed</option><option>contract</option><option>other</option></select></label>
+        <label>Home ownership<select id="home-ownership"><option>mortgage</option><option>rent</option><option>own</option><option>other</option></select></label>
+      </div>
+      <div class="form-actions"><button type="submit">Create case</button><span id="case-result" class="trace" aria-live="polite"></span></div>
+    </form>
     <h2>Golden Demo validation</h2>
     <p>These buttons execute the approved architecture-contract checks against versioned synthetic trace fixtures. They do not call live providers.</p>
     <div class="grid">
@@ -50,6 +71,37 @@
     </div>
   </main>
   <script>
+    document.getElementById("case-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const result = document.getElementById("case-result");
+      const applicationId = document.getElementById("application-id").value.trim();
+      result.textContent = "Creating synthetic case…";
+      const payload = {
+        application_id: applicationId,
+        customer_token: `customer-token-${crypto.randomUUID()}`,
+        reported_values: {
+          annual_income: Number(document.getElementById("annual-income").value),
+          monthly_debt_payment: Number(document.getElementById("monthly-debt").value),
+          requested_amount: Number(document.getElementById("requested-amount").value),
+          loan_term_months: Number(document.getElementById("loan-term").value),
+          employment_years: Number(document.getElementById("employment-years").value),
+          credit_utilization: Number(document.getElementById("credit-utilization").value),
+          delinquency_count: Number(document.getElementById("delinquency-count").value),
+          recent_inquiries: Number(document.getElementById("recent-inquiries").value),
+          credit_history_years: Number(document.getElementById("credit-history").value)
+        },
+        sanitized_attributes: {
+          employment_type: document.getElementById("employment-type").value,
+          home_ownership: document.getElementById("home-ownership").value
+        },
+        source_reference: `synthetic-ui-${applicationId}`
+      };
+      const response = await fetch("/api/cases", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+      const body = await response.json();
+      if (response.ok) { result.textContent = "Created. Refreshing…"; setTimeout(() => location.reload(), 350); }
+      else { result.textContent = `Not created: ${body.detail || "invalid input"}`; }
+    });
+
     async function runDemo(id, button) {
       const target = button.parentElement.querySelector(".trace");
       button.disabled = true; target.textContent = "Running checks…";

@@ -14,6 +14,8 @@ Approved on 2026-09-20 through `docs/PHASE_13_PROPOSAL.md`.
 - one-click UI execution of all three versioned Golden Demo architecture
   contracts, with per-check trace and explicit fixture/provider distinction;
 - an evidence-first server-rendered analyst dashboard and case view;
+- a direct synthetic-case intake form on the dashboard with automatic opaque
+  token generation and no identity-PII fields;
 - separate reported and verified evidence presentation;
 - protected, versioned, authorized, and idempotent human-review recording;
 - append-only human-review audit references;
