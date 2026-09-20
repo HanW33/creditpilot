@@ -58,7 +58,8 @@ def test_health_case_api_and_dashboard_use_synthetic_sanitized_view(
     assert "Synthetic decision support only" in dashboard.text
     assert "Create a synthetic case" in dashboard.text
     assert 'id="annual-income"' in dashboard.text
-    assert "crypto.randomUUID()" in dashboard.text
+    assert "Math.random()" in dashboard.text
+    assert "browser request failed" in dashboard.text
     assert "SYN-API-001" in dashboard.text
     detail = test_client.get("/cases/SYN-API-001")
     assert "Reported evidence" in detail.text

@@ -76,9 +76,10 @@
       const result = document.getElementById("case-result");
       const applicationId = document.getElementById("application-id").value.trim();
       result.textContent = "Creating synthetic case…";
+      const tokenSuffix = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
       const payload = {
         application_id: applicationId,
-        customer_token: `customer-token-${crypto.randomUUID()}`,
+        customer_token: `customer-token-${tokenSuffix}`,
         reported_values: {
           annual_income: Number(document.getElementById("annual-income").value),
           monthly_debt_payment: Number(document.getElementById("monthly-debt").value),
@@ -96,10 +97,14 @@
         },
         source_reference: `synthetic-ui-${applicationId}`
       };
-      const response = await fetch("/api/cases", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
-      const body = await response.json();
-      if (response.ok) { result.textContent = "Created. Refreshing…"; setTimeout(() => location.reload(), 350); }
-      else { result.textContent = `Not created: ${body.detail || "invalid input"}`; }
+      try {
+        const response = await fetch("/api/cases", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+        const body = await response.json();
+        if (response.ok) { result.textContent = "Created. Refreshing…"; setTimeout(() => location.reload(), 350); }
+        else { result.textContent = `Not created: ${body.detail || "invalid input"}`; }
+      } catch (error) {
+        result.textContent = `Not created: ${error.message || "browser request failed"}`;
+      }
     });
 
     async function runDemo(id, button) {
