@@ -16,13 +16,26 @@
     article { background:white; border:1px solid var(--line); border-radius:10px; padding:20px; }
     a { color:#0c5b9d; font-weight:650; text-decoration:none; }
     .status { display:inline-block; margin-top:12px; padding:4px 9px; border-radius:999px; background:var(--blue); }
-    .empty { color:var(--muted); }
+    .empty { color:var(--muted); } button { border:0; border-radius:7px; padding:9px 13px; background:var(--navy); color:white; font-weight:700; cursor:pointer; }
+    .trace { margin-top:12px; font-size:13px; color:var(--muted); } .pass { color:#176b42; font-weight:700; } .fail { color:#a12626; font-weight:700; }
   </style>
 </head>
 <body>
   <header><h1>CreditPilot</h1><p>Evidence-first analyst workspace</p></header>
   <main>
     <p class="notice"><strong>Synthetic decision support only.</strong> This is not a real lending system and does not make autonomous lending decisions.</p>
+    <h2>Golden Demo validation</h2>
+    <p>These buttons execute the approved architecture-contract checks against versioned synthetic trace fixtures. They do not call live providers.</p>
+    <div class="grid">
+      {% for demo in demos %}
+      <article>
+        <strong>{{ demo.title }}</strong>
+        <p>{{ demo.scenario_id }}</p>
+        <button onclick="runDemo('{{ demo.scenario_id }}', this)">Run validation</button>
+        <div class="trace" aria-live="polite"></div>
+      </article>
+      {% endfor %}
+    </div>
     <h2>Cases</h2>
     <div class="grid">
       {% for case in cases %}
@@ -36,5 +49,18 @@
       {% endfor %}
     </div>
   </main>
+  <script>
+    async function runDemo(id, button) {
+      const target = button.parentElement.querySelector(".trace");
+      button.disabled = true; target.textContent = "Running checks…";
+      try {
+        const response = await fetch(`/api/demos/${id}/run`, {method:"POST"});
+        const body = await response.json();
+        const passed = body.trace.filter(item => item.status === "pass").length;
+        target.innerHTML = `<span class="${body.status}">${body.status.toUpperCase()}</span> — ${passed}/${body.trace.length} checks passed.<br>${body.execution_notice}`;
+      } catch (_) { target.textContent = "Validation could not run."; }
+      finally { button.disabled = false; }
+    }
+  </script>
 </body>
 </html>

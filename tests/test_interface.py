@@ -179,3 +179,28 @@ def test_evaluation_endpoint_and_not_found(tmp_path: Path) -> None:
 
     assert test_client.get("/api/evaluation").json()["status"] == "pass"
     assert test_client.get("/api/cases/missing").status_code == 404
+
+
+def test_one_click_golden_demo_runs_live_contract_trace(tmp_path: Path) -> None:
+    test_client = client(tmp_path)
+
+    catalog = test_client.get("/api/demos")
+    assert catalog.status_code == 200
+    assert len(catalog.json()) == 3
+    response = test_client.post("/api/demos/golden-2-income-verification/run")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "pass"
+    assert body["execution_kind"] == "synthetic_architecture_contract"
+    assert "not a live provider call" in body["execution_notice"]
+    checks = {item["check_id"]: item for item in body["trace"]}
+    assert checks["verification.reported_preserved"]["status"] == "pass"
+    assert checks["rerun.model_and_policy"]["actual"] == "model=2,policy=2"
+    saved = test_client.get(f"/api/demo-runs/{body['run_id']}")
+    assert saved.json() == body
+    assert test_client.post("/api/demos/missing/run").status_code == 404
+
+    dashboard = test_client.get("/")
+    assert "Golden Demo validation" in dashboard.text
+    assert "Run validation" in dashboard.text

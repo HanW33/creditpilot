@@ -11,6 +11,8 @@ Approved on 2026-09-20 through `docs/PHASE_13_PROPOSAL.md`.
 - typed FastAPI endpoints for synthetic case intake, listing, detail, demo
   mandatory-review routing, human-review recording, evaluation, and health;
 - a replaceable in-memory V1 repository with no production database choice;
+- one-click UI execution of all three versioned Golden Demo architecture
+  contracts, with per-check trace and explicit fixture/provider distinction;
 - an evidence-first server-rendered analyst dashboard and case view;
 - separate reported and verified evidence presentation;
 - protected, versioned, authorized, and idempotent human-review recording;

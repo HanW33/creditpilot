@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, ConfigDict, Field
 
+from creditpilot.interface.demos import GoldenDemoRunner
 from creditpilot.interface.operations import (
     RuntimeConfig,
     RuntimeMetrics,
@@ -70,6 +71,7 @@ def create_app(
     runtime_config = runtime_config or RuntimeConfig()
     runtime_config.validate()
     service = AnalystInterfaceService(repository)
+    demos = GoldenDemoRunner()
     metrics = RuntimeMetrics()
     logger = configure_logging(runtime_config.log_level)
     templates = Jinja2Templates(directory=TEMPLATE_DIR)
@@ -83,6 +85,7 @@ def create_app(
     app.state.service = service
     app.state.metrics = metrics
     app.state.runtime_config = runtime_config
+    app.state.demos = demos
 
     @app.middleware("http")
     async def operational_observability(request: Request, call_next):
@@ -189,12 +192,33 @@ def create_app(
             raise HTTPException(status_code=503, detail="evaluation report unavailable")
         return json.loads(report_path.read_text())
 
+    @app.get("/api/demos")
+    def list_demos() -> list[dict[str, str]]:
+        return demos.catalog()
+
+    @app.post("/api/demos/{scenario_id}/run")
+    def run_demo(scenario_id: str) -> dict[str, Any]:
+        try:
+            return demos.run(scenario_id)
+        except KeyError as error:
+            raise HTTPException(status_code=404, detail="demo not found") from error
+
+    @app.get("/api/demo-runs/{run_id}")
+    def get_demo_run(run_id: str) -> dict[str, Any]:
+        try:
+            return demos.get(run_id)
+        except KeyError as error:
+            raise HTTPException(status_code=404, detail="demo run not found") from error
+
     @app.get("/", response_class=HTMLResponse)
     def dashboard(request: Request):
         return templates.TemplateResponse(
             request=request,
             name="dashboard.html",
-            context={"cases": [case_summary(item) for item in repository.list()]},
+            context={
+                "cases": [case_summary(item) for item in repository.list()],
+                "demos": demos.catalog(),
+            },
         )
 
     @app.get("/cases/{application_id}", response_class=HTMLResponse)
