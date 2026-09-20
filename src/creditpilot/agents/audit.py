@@ -8,6 +8,7 @@ from typing import Any
 
 from creditpilot.agents.contracts import AgentAuditRecord, AgentFailure, AgentInvocation
 from creditpilot.agents.escalation_agent import EscalationAgentOutput
+from creditpilot.agents.explanation_agent import ExplanationAgentOutput
 from creditpilot.agents.orchestrator_agent import OrchestratorOutput
 from creditpilot.agents.policy_agent import PolicyAgentOutput
 from creditpilot.agents.verification_agent import VerificationAgentOutput
@@ -161,6 +162,73 @@ def record_escalation_agent_audit(
         structured_output=structured_output,
         proposed_actions=actions,
         validation_result=validation_result,
+        failure=failure,
+        created_at=utc_now(),
+        resulting_state_version=committed.state_metadata.state_version,
+    )
+    return committed, record
+
+
+def record_explanation_agent_audit(
+    state: CreditState,
+    invocation: AgentInvocation,
+    controller: ProtectedStateController,
+    *,
+    output: ExplanationAgentOutput | None = None,
+    validation_error: str | None = None,
+) -> tuple[CreditState, AgentAuditRecord]:
+    """Persist a sanitized reference-only Explanation Agent audit record."""
+
+    if invocation.agent_role != "explanation_agent":
+        raise ValueError("audit invocation is not for the Explanation Agent")
+    if (output is None) == (validation_error is None):
+        raise ValueError("provide exactly one output or validation_error")
+    if output is not None and output.invocation_id != invocation.invocation_id:
+        raise ValueError("agent output does not match invocation")
+    reference = f"agent-output://{invocation.invocation_id}"
+    committed = controller.append_audit_reference(
+        state,
+        category="agent_output_references",
+        reference=reference,
+        written_by="audit_persistence",
+        expected_state_version=state.state_metadata.state_version,
+    )
+    if output is not None:
+        structured = _to_audit_value(output)
+        evidence = output.evidence_references
+        status = output.status
+        failure = output.failure
+        validation = "accepted"
+    else:
+        structured = {}
+        evidence = ()
+        status = "rejected"
+        failure = AgentFailure(
+            "invalid_structured_output",
+            validation_error or "Explanation Agent output rejected",
+        )
+        validation = "rejected"
+    record = AgentAuditRecord(
+        audit_reference=reference,
+        invocation_id=invocation.invocation_id,
+        agent_role=invocation.agent_role,
+        application_id=invocation.application_id,
+        case_id=invocation.case_id,
+        purpose=invocation.purpose,
+        input_state_version=invocation.input_state_version,
+        authorized_context_reference=(
+            f"agent-context://{invocation.invocation_id}/"
+            f"state/{invocation.input_state_version}"
+        ),
+        authorized_context_keys=tuple(
+            sorted(invocation.authorized_state_view.data)
+        ),
+        permitted_tools=invocation.permitted_tools,
+        status=status,
+        evidence_references=evidence,
+        structured_output=structured,
+        proposed_actions=(),
+        validation_result=validation,
         failure=failure,
         created_at=utc_now(),
         resulting_state_version=committed.state_metadata.state_version,

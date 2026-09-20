@@ -241,6 +241,31 @@ class ProtectedStateController:
             raise StateUpdateRejected("explanation must be non-empty")
         if not proposal.basis_references:
             raise StateUpdateRejected("explanation must cite committed evidence")
+        committed_references = {state.application_data.source_reference}
+        model = state.quantitative_model_state
+        if model.model_version and model.input_state_version is not None:
+            committed_references.add(
+                f"model://{model.model_version}/state/{model.input_state_version}"
+            )
+        committed_references.update(
+            f"policy://{item.source_document}/"
+            f"{item.section_or_chunk_reference}@{item.policy_version}"
+            for item in state.policy_state.retrieved_evidence
+        )
+        committed_references.update(
+            item.raw_evidence_reference
+            for item in state.verification_state.tool_results
+        )
+        audit = state.governance_audit_references
+        for field in audit.__dataclass_fields__:
+            committed_references.update(getattr(audit, field))
+        unresolved_references = set(proposal.basis_references) - committed_references
+        legacy_external_prefixes = ("model-run-", "policy-finding-")
+        if any(
+            not reference.startswith(legacy_external_prefixes)
+            for reference in unresolved_references
+        ):
+            raise StateUpdateRejected("explanation cites uncommitted evidence")
         result = ExplanationState(
             explanation=explanation,
             input_state_version=state.state_metadata.state_version,

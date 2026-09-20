@@ -2,8 +2,8 @@
 
 CreditPilot is an agentic AI credit risk decision-support system for a Credit
 Risk Analyst or Underwriter. Phase 0 architecture and harness documentation was
-approved and frozen on 2026-09-15. Phases 1 through 10 are complete, and the
-next planned phase is Phase 11: Explanation Agent.
+approved and frozen on 2026-09-15. Phases 1 through 11 are complete, and the
+next planned phase is Phase 12: comprehensive evaluation.
 
 ## Purpose
 
@@ -107,8 +107,10 @@ and workflow limits. Phase 9 is complete with pre-decision eligibility checks,
 an explicitly configured deterministic Decision Engine, protected recommendation
 commit, decision audit, and post-decision human-review routing. Phase 10 is
 complete with a bounded Escalation Agent, offline idempotent review-case and
-notification tools, protected action-result references, and audit. The next
-planned phase is Phase 11 - Explanation Agent.
+notification tools, protected action-result references, and audit. Phase 11 is
+complete with a read-only, evidence-grounded Explanation Agent, protected
+explanation commit, minimum-context enforcement, and audit. The next planned
+phase is Phase 12 - ML, RAG, agent, safety, and end-to-end evaluation.
 
 ## Phase 1 Baseline
 

@@ -52,6 +52,7 @@ def _verification_summary(state: CreditState) -> Mapping[str, Any]:
                 "result_id": result.result_id,
                 "request_id": result.request_id,
                 "status": result.status,
+                "raw_evidence_reference": result.raw_evidence_reference,
                 "failure": result.failure,
             }
             for result in state.verification_state.tool_results
@@ -106,6 +107,7 @@ def build_role_state_view(state: CreditState, role: str) -> RoleStateView:
             "verification_state": verification,
             "recommendation_state": state.recommendation_state,
             "workflow_state": state.workflow_state,
+            "escalation_state": state.escalation_state,
         },
         "escalation_agent": {
             "case_reference": case_reference,

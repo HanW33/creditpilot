@@ -2,6 +2,7 @@
 
 from creditpilot.agents.audit import (
     record_escalation_agent_audit,
+    record_explanation_agent_audit,
     record_orchestrator_agent_audit,
     record_policy_agent_audit,
     record_verification_agent_audit,
@@ -18,6 +19,14 @@ from creditpilot.agents.escalation_agent import (
     EscalationReasoningBackend,
     escalation_output_to_state_proposal,
     run_escalation_agent,
+)
+from creditpilot.agents.explanation_agent import (
+    ExplanationAgentOutput,
+    ExplanationAgentValidationError,
+    ExplanationContext,
+    ExplanationReasoningBackend,
+    explanation_output_to_state_proposal,
+    run_explanation_agent,
 )
 from creditpilot.agents.orchestrator_agent import (
     OrchestratorContext,
@@ -51,6 +60,10 @@ __all__ = [
     "EscalationAgentValidationError",
     "EscalationContext",
     "EscalationReasoningBackend",
+    "ExplanationAgentOutput",
+    "ExplanationAgentValidationError",
+    "ExplanationContext",
+    "ExplanationReasoningBackend",
     "OrchestratorContext",
     "OrchestratorOutput",
     "OrchestratorReasoningBackend",
@@ -61,7 +74,9 @@ __all__ = [
     "PolicyReasoningBackend",
     "policy_output_to_state_proposal",
     "escalation_output_to_state_proposal",
+    "explanation_output_to_state_proposal",
     "record_escalation_agent_audit",
+    "record_explanation_agent_audit",
     "orchestrator_output_to_verification_request",
     "orchestrator_output_to_workflow_proposal",
     "record_orchestrator_agent_audit",
@@ -69,6 +84,7 @@ __all__ = [
     "record_verification_agent_audit",
     "run_policy_agent",
     "run_escalation_agent",
+    "run_explanation_agent",
     "run_orchestrator_agent",
     "VerificationAgentOutput",
     "VerificationAgentValidationError",
