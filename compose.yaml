@@ -1,0 +1,16 @@
+services:
+  creditpilot:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      CREDITPILOT_DEPLOYMENT_MODE: synthetic_demo
+      CREDITPILOT_HOST: 0.0.0.0
+      CREDITPILOT_PORT: "8000"
+      CREDITPILOT_LOG_LEVEL: INFO
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 from typing import Any, Literal
 
@@ -11,6 +12,12 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, ConfigDict, Field
 
+from creditpilot.interface.operations import (
+    RuntimeConfig,
+    RuntimeMetrics,
+    configure_logging,
+    route_template,
+)
 from creditpilot.interface.repository import (
     CaseNotFoundError,
     InMemoryCaseRepository,
@@ -57,9 +64,14 @@ def create_app(
     repository: InMemoryCaseRepository | None = None,
     *,
     evaluation_report_path: Path | None = None,
+    runtime_config: RuntimeConfig | None = None,
 ) -> FastAPI:
     repository = repository or InMemoryCaseRepository()
+    runtime_config = runtime_config or RuntimeConfig()
+    runtime_config.validate()
     service = AnalystInterfaceService(repository)
+    metrics = RuntimeMetrics()
+    logger = configure_logging(runtime_config.log_level)
     templates = Jinja2Templates(directory=TEMPLATE_DIR)
     report_path = evaluation_report_path or Path("reports/phase12_evaluation.json")
     app = FastAPI(
@@ -69,6 +81,26 @@ def create_app(
     )
     app.state.repository = repository
     app.state.service = service
+    app.state.metrics = metrics
+    app.state.runtime_config = runtime_config
+
+    @app.middleware("http")
+    async def operational_observability(request: Request, call_next):
+        started = time.perf_counter()
+        response = await call_next(request)
+        duration_ms = round((time.perf_counter() - started) * 1000, 2)
+        metrics.record_request(request.method, request.url.path, response.status_code)
+        logger.info(
+            "request_complete",
+            extra={
+                "method": request.method,
+                "path": route_template(request.url.path),
+                "status_code": response.status_code,
+                "duration_ms": duration_ms,
+            },
+        )
+        response.headers["X-CreditPilot-Data-Scope"] = "synthetic-only"
+        return response
 
     def state_or_404(application_id: str):
         try:
@@ -87,6 +119,23 @@ def create_app(
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok", "data_scope": "synthetic_only"}
+
+    @app.get("/ready")
+    def ready() -> dict[str, str]:
+        if not TEMPLATE_DIR.is_dir() or not report_path.is_file():
+            raise HTTPException(
+                status_code=503, detail="required artifacts unavailable"
+            )
+        return {
+            "status": "ready",
+            "deployment_mode": runtime_config.deployment_mode,
+            "persistence": "in_memory",
+            "data_scope": "synthetic_only",
+        }
+
+    @app.get("/metrics")
+    def runtime_metrics() -> dict[str, Any]:
+        return metrics.snapshot()
 
     @app.post("/api/cases", status_code=201)
     def create_case(payload: CreateCaseRequest) -> dict[str, Any]:
@@ -165,4 +214,4 @@ def _json_error(status_code: int, detail: str):
     return JSONResponse(status_code=status_code, content={"detail": detail})
 
 
-app = create_app()
+app = create_app(runtime_config=RuntimeConfig.from_environment())
