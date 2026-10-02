@@ -1,75 +1,33 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ case.application_id }} — CreditPilot</title>
   <style>
-    :root { --ink:#16233a; --muted:#637083; --line:#dce3eb; --navy:#153d67; --amber:#fff4d6; }
-    * { box-sizing:border-box; } body { margin:0; font:15px/1.5 system-ui,sans-serif; color:var(--ink); background:#f4f7fa; }
-    header { background:var(--navy); color:white; padding:24px max(24px,calc((100% - 1100px)/2)); }
-    header a { color:white; } main { max-width:1100px; margin:24px auto; padding:0 24px; }
-    .notice { background:var(--amber); border:1px solid #e8cf8f; padding:12px 15px; border-radius:9px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; margin-top:18px; }
-    section { background:white; border:1px solid var(--line); border-radius:10px; padding:18px; overflow-wrap:anywhere; }
-    h2 { margin-top:0; font-size:18px; } dt { color:var(--muted); } dd { margin:0 0 10px; }
-    pre { white-space:pre-wrap; margin:0; font:13px/1.45 ui-monospace,monospace; }
-    label { display:block; margin-top:10px; font-weight:650; } input,select,textarea { width:100%; padding:9px; border:1px solid var(--line); border-radius:6px; font:inherit; }
-    button { margin-top:12px; border:0; border-radius:7px; padding:10px 14px; color:white; background:var(--navy); font-weight:700; cursor:pointer; }
-    #review-result { color:var(--muted); }
+    :root{--ink:#172033;--muted:#647084;--line:#e3e8ef;--panel:#fff;--canvas:#f5f7fa;--navy:#102a43;--blue:#1769aa;--blue-soft:#edf5fb;--green:#16704a;--green-soft:#eaf7f1;--amber:#9a5b00;--amber-soft:#fff7e8;--shadow:0 9px 28px rgba(26,42,66,.06)}*{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.topbar{height:68px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 max(28px,calc((100% - 1180px)/2))}.back{color:#cbe0f0;text-decoration:none;font-weight:700}.brand{margin-left:auto;font-size:13px;color:#cbe0f0}main{max-width:1180px;margin:0 auto;padding:28px}.case-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:20px}.case-head h1{font-size:28px;margin:3px 0}.eyebrow{margin:0;color:var(--blue);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px}.meta{color:var(--muted)}.badge{display:inline-flex;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800}.badge.review{background:var(--amber-soft);color:var(--amber)}.badge.clear{background:var(--green-soft);color:var(--green)}.notice{padding:12px 15px;border:1px solid #efd59e;border-radius:10px;background:var(--amber-soft);color:#714600;margin-bottom:20px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}.metric{padding:16px;border:1px solid var(--line);border-radius:11px;background:#fff}.metric span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}.metric strong{display:block;margin-top:5px;font-size:17px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden}.card.wide{grid-column:1/-1}.card-head{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;border-bottom:1px solid var(--line)}.card-head h2{margin:0;font-size:15px}.card-head span{color:var(--muted);font-size:11px}.card-body{padding:17px 18px}.kv{display:grid;grid-template-columns:minmax(130px,.8fr) 1.2fr;gap:9px 16px}.kv div:nth-child(odd){color:var(--muted)}.kv div:nth-child(even){font-weight:650;overflow-wrap:anywhere}.empty{color:var(--muted);font-style:italic}.json{margin:0;max-height:270px;overflow:auto;white-space:pre-wrap;color:#354258;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}.review-form{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}.field.full{grid-column:1/-1}.field label{display:block;margin-bottom:5px;font-size:12px;font-weight:750;color:#46546a}.field input,.field select,.field textarea{width:100%;padding:9px 10px;border:1px solid #d7dee8;border-radius:8px;background:#fff;font:inherit}.field textarea{min-height:90px;resize:vertical}.primary{border:0;border-radius:8px;padding:10px 16px;background:#183f63;color:#fff;font-weight:800;cursor:pointer}.result{margin-left:10px;color:var(--muted)}@media(max-width:780px){.summary{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.card.wide{grid-column:auto}.case-head{flex-direction:column}.review-form{grid-template-columns:1fr}.field.full{grid-column:auto}}@media(max-width:460px){main{padding:20px 15px}.summary{grid-template-columns:1fr}.kv{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header><a href="/">← Cases</a><h1>{{ case.application_id }}</h1><div>State version {{ case.state_version }}</div></header>
+  <header class="topbar"><a class="back" href="/">← Workspace</a><span class="brand">CreditPilot · Synthetic analyst console</span></header>
   <main>
-    <p class="notice"><strong>Synthetic decision support only.</strong> Human authority is retained wherever review is required.</p>
+    <section class="case-head"><div><p class="eyebrow">Case overview</p><h1>{{ case.application_id }}</h1><div class="meta">State version {{ case.state_version }} · Schema {{ case.schema_version }}</div></div><span class="badge {% if case.workflow.mandatory_human_review %}review{% else %}clear{% endif %}">{% if case.workflow.mandatory_human_review %}● Human review required{% else %}● Standard path{% endif %}</span></section>
+    <div class="notice"><strong>Synthetic decision support only.</strong> Human authority is retained wherever review is required; evidence shown here must not be treated as a real lending decision.</div>
+    <section class="summary">
+      <div class="metric"><span>Model status</span><strong>{{ case.model.status }}</strong></div><div class="metric"><span>PD score</span><strong>{{ case.model.pd_score if case.model.pd_score is not none else "—" }}</strong></div><div class="metric"><span>Policy status</span><strong>{{ case.policy.status }}</strong></div><div class="metric"><span>Recommendation</span><strong>{{ case.recommendation.recommendation or "Pending" }}</strong></div>
+    </section>
     <div class="grid">
-      <section><h2>Workflow</h2><pre>{{ case.workflow | tojson(indent=2) }}</pre></section>
-      <section><h2>Reported evidence</h2><pre>{{ case.reported_values | tojson(indent=2) }}</pre></section>
-      <section><h2>Verified evidence</h2><pre>{{ case.verification | tojson(indent=2) }}</pre></section>
-      <section><h2>Model and SHAP</h2><pre>{{ case.model | tojson(indent=2) }}</pre></section>
-      <section><h2>Policy evidence</h2><pre>{{ case.policy | tojson(indent=2) }}</pre></section>
-      <section><h2>Recommendation</h2><pre>{{ case.recommendation | tojson(indent=2) }}</pre></section>
-      <section><h2>Explanation</h2><p>{{ case.explanation or "Not yet available" }}</p></section>
-      <section><h2>Escalation and review</h2><pre>{{ case.escalation | tojson(indent=2) }}</pre></section>
-      <section><h2>Audit references</h2><pre>{{ case.audit | tojson(indent=2) }}</pre></section>
+      <section class="card"><div class="card-head"><h2>Reported evidence</h2><span>Applicant supplied</span></div><div class="card-body"><div class="kv">{% for key,value in case.reported_values.items() %}<div>{{ key | replace('_',' ') | title }}</div><div>{{ value }}</div>{% endfor %}{% for key,value in case.sanitized_attributes.items() %}<div>{{ key | replace('_',' ') | title }}</div><div>{{ value }}</div>{% endfor %}</div></div></section>
+      <section class="card"><div class="card-head"><h2>Verified evidence</h2><span>Kept separate</span></div><div class="card-body">{% if case.verification.verified_values %}<div class="kv">{% for key,value in case.verification.verified_values.items() %}<div>{{ key | replace('_',' ') | title }}</div><div>{{ value }}</div>{% endfor %}</div>{% else %}<div class="empty">No verified values have been committed.</div>{% endif %}</div></section>
+      <section class="card"><div class="card-head"><h2>Quantitative model</h2><span>{{ case.model.model_version or "Not run" }}</span></div><div class="card-body"><div class="kv"><div>Status</div><div>{{ case.model.status }}</div><div>PD score</div><div>{{ case.model.pd_score if case.model.pd_score is not none else "Not available" }}</div><div>Risk band</div><div>{{ case.model.risk_band or "Not available" }}</div></div>{% if case.model.shap_risk_factors %}<h3>SHAP factors</h3><pre class="json">{{ case.model.shap_risk_factors | tojson(indent=2) }}</pre>{% endif %}</div></section>
+      <section class="card"><div class="card-head"><h2>Policy evidence</h2><span>{{ case.policy.status }}</span></div><div class="card-body">{% if case.policy.findings %}<ul>{% for finding in case.policy.findings %}<li>{{ finding }}</li>{% endfor %}</ul>{% else %}<div class="empty">No policy findings committed.</div>{% endif %}{% if case.policy.conflicts %}<h3>Conflicts</h3><ul>{% for conflict in case.policy.conflicts %}<li>{{ conflict }}</li>{% endfor %}</ul>{% endif %}</div></section>
+      <section class="card wide"><div class="card-head"><h2>Decision support</h2><span>Decision Engine boundary</span></div><div class="card-body"><div class="kv"><div>Recommendation</div><div>{{ case.recommendation.recommendation or "Pending" }}</div><div>Decision rule</div><div>{{ case.recommendation.decision_rule or "Not available" }}</div><div>Decision reason</div><div>{{ case.recommendation.decision_reason or "Not available" }}</div><div>Explanation</div><div>{{ case.explanation or "Not yet available" }}</div></div></div></section>
+      <section class="card"><div class="card-head"><h2>Workflow</h2><span>Protected state</span></div><div class="card-body"><pre class="json">{{ case.workflow | tojson(indent=2) }}</pre></div></section>
+      <section class="card"><div class="card-head"><h2>Audit references</h2><span>Traceability</span></div><div class="card-body"><pre class="json">{{ case.audit | tojson(indent=2) }}</pre></div></section>
       {% if case.workflow.mandatory_human_review and not case.escalation.human_review_outcome_reference %}
-      <section>
-        <h2>Record authorized human review</h2>
-        <form id="review-form">
-          <label for="outcome">Outcome</label>
-          <select id="outcome"><option>ACKNOWLEDGED</option><option>RETURN_FOR_INFORMATION</option><option>CLOSED_AFTER_REVIEW</option></select>
-          <label for="reviewer">Opaque reviewer token</label><input id="reviewer" placeholder="analyst-token-..." required>
-          <label for="rationale">Sanitized rationale</label><textarea id="rationale" required></textarea>
-          <label for="key">Idempotency key</label><input id="key" required>
-          <button type="submit">Record review</button>
-        </form>
-        <p id="review-result"></p>
-      </section>
+      <section class="card wide"><div class="card-head"><h2>Record authorized human review</h2><span>Human authority retained</span></div><div class="card-body"><form id="review-form" class="review-form"><div class="field"><label for="outcome">Outcome</label><select id="outcome"><option>ACKNOWLEDGED</option><option>RETURN_FOR_INFORMATION</option><option>CLOSED_AFTER_REVIEW</option></select></div><div class="field"><label for="reviewer">Opaque reviewer token</label><input id="reviewer" placeholder="analyst-token-..." required></div><div class="field full"><label for="rationale">Sanitized rationale</label><textarea id="rationale" required></textarea></div><div class="field"><label for="key">Idempotency key</label><input id="key" required></div><div class="field" style="align-self:end"><button class="primary" type="submit">Record review</button><span id="review-result" class="result"></span></div></form></div></section>
       {% endif %}
     </div>
   </main>
-  {% if case.workflow.mandatory_human_review and not case.escalation.human_review_outcome_reference %}
-  <script>
-    document.getElementById("review-form").addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const result = document.getElementById("review-result");
-      const response = await fetch("/api/cases/{{ case.application_id }}/human-review", {
-        method: "POST",
-        headers: {"Content-Type":"application/json", "X-Analyst-Role":"authorized_human_analyst"},
-        body: JSON.stringify({
-          outcome: document.getElementById("outcome").value,
-          reviewer_token: document.getElementById("reviewer").value,
-          rationale: document.getElementById("rationale").value,
-          idempotency_key: document.getElementById("key").value,
-          expected_state_version: {{ case.state_version }}
-        })
-      });
-      const body = await response.json();
-      if (response.ok) { result.textContent = `Recorded: ${body.review_reference}`; setTimeout(() => location.reload(), 500); }
-      else { result.textContent = `Not recorded: ${body.detail}`; }
-    });
-  </script>
-  {% endif %}
+  {% if case.workflow.mandatory_human_review and not case.escalation.human_review_outcome_reference %}<script>document.getElementById("review-form").addEventListener("submit",async(event)=>{event.preventDefault();const result=document.getElementById("review-result");result.textContent="Recording…";try{const response=await fetch("/api/cases/{{ case.application_id }}/human-review",{method:"POST",headers:{"Content-Type":"application/json","X-Analyst-Role":"authorized_human_analyst"},body:JSON.stringify({outcome:document.getElementById("outcome").value,reviewer_token:document.getElementById("reviewer").value,rationale:document.getElementById("rationale").value,idempotency_key:document.getElementById("key").value,expected_state_version:{{ case.state_version }}})});const body=await response.json();if(response.ok){result.textContent=`Recorded: ${body.review_reference}`;setTimeout(()=>location.reload(),500)}else{result.textContent=`Not recorded: ${body.detail}`}}catch(error){result.textContent=`Not recorded: ${error.message}`}});</script>{% endif %}
 </body>
 </html>
